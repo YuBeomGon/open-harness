@@ -75,7 +75,8 @@ system prompt, environment info, CLAUDE.md, memory, skill registry가 한 runtim
 
 ### `plugins` / `skills`
 
-user-global path와 project-local path를 같이 읽어 extension surface를 구성한다.
+plugins는 user-global과 project-local plugin directory를 읽어 extension surface를 구성한다.
+skills는 bundled skills, `~/.openharness/skills`의 user skills, 그리고 plugin loading을 통해 발견되는 plugin-provided skills를 합쳐 노출한다.
 
 ### `memory`, `tasks`, `swarm`
 
@@ -97,7 +98,7 @@ Ollama는 현재 codebase에서 OpenAI-compatible local backend로 취급된다.
 
 ## deeper dive를 위한 source entry points
 
-다음 파일을 순서대로 열어보면 request flow와 책임 분리가 더 잘 보인다.
+다음 파일은 doc-to-source alignment를 유지하기 위한 starting set이다. request flow와 책임 분리를 더 좁혀 보려면 아래부터 열어보면 된다.
 
 - `src/openharness/cli.py`
 - `src/openharness/ui/runtime.py`
@@ -105,12 +106,15 @@ Ollama는 현재 codebase에서 OpenAI-compatible local backend로 취급된다.
 - `src/openharness/engine/query.py`
 - `src/openharness/tools/__init__.py`
 - `src/openharness/permissions/checker.py`
+- `src/openharness/prompts/context.py`
+- `src/openharness/plugins/loader.py`
+- `src/openharness/skills/loader.py`
 - `src/openharness/config/settings.py`
 - `src/openharness/services/session_storage.py`
 
 ## 이 문서를 검증할 때 사용한 source checks
 
-이 checks는 code가 바뀔 때 doc-to-source alignment를 유지하기 위한 기준이다.
+이 checks는 code가 바뀔 때 doc-to-source alignment를 유지하기 위한 starting set이다.
 
 - `rg -n "provider add|provider use|--base-url|--api-format" src/openharness/cli.py`
 - `rg -n "OpenAICompatibleClient|build_runtime|cwd = str\\(Path.cwd\\(\\)\\)" src/openharness/ui/runtime.py`
