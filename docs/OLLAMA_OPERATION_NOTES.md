@@ -7,7 +7,10 @@ setup command만 나열하지 않고, 실제로 어디서 잘 되고 어디서 �
 
 이 문서의 source-checkout command는 `uv run --project <path-to-OpenHarness-checkout> oh ...` 형태를 기준으로 한다.
 이 표기는 다른 working directory에서 checkout root를 가리키는 방식으로 검증한 경로다.
-OpenHarness가 installed CLI로 이미 제공되는 환경이라면, 같은 명령에서 `uv run --project <path-to-OpenHarness-checkout> oh` 부분을 plain `oh`로 바꿔서 실행한다.
+prompt는 현재 working directory를 기준으로 해석된다.
+다른 프로젝트를 검사하려면 먼저 `cd /path/to/target-project` 한 뒤 실행한다.
+OpenHarness가 installed CLI로 이미 제공되는 환경이라면, `oh provider add`와 `oh provider use`로 provider profile을 활성화한 뒤 plain `oh`를 쓸 수 있다.
+profile이 없다면 Ollama용 flags를 직접 넘겨야 한다.
 
 ## 빠른 health check
 
@@ -41,7 +44,7 @@ OPENAI_API_KEY=dummy uv run --project <path-to-OpenHarness-checkout> oh \
   --api-format openai \
   --base-url http://localhost:11434/v1 \
   --model qwen2.5-coder:7b \
-  -p "List files that define the permission system."
+  -p "List files that define the permission system in the current workspace."
 ```
 
 ## 반복 사용을 위한 profile 방식
@@ -60,6 +63,8 @@ OPENAI_API_KEY=dummy uv run --project <path-to-OpenHarness-checkout> oh
 ```
 
 installed CLI를 쓰는 경우에는 위 예시의 source-checkout prefix를 모두 `oh`로 치환한다.
+`oh`만으로 Ollama에 붙는 경로는 provider profile이 `use`로 활성화된 경우로 한정한다.
+profile을 아직 등록하지 않았다면 `OPENAI_API_KEY=dummy`만으로는 충분하지 않고, `--api-format openai --base-url http://localhost:11434/v1 --model qwen2.5-coder:7b`를 함께 써야 한다.
 
 profile-based flow에서는 `-k dummy`만으로는 실행이 안 되었고, `OPENAI_API_KEY=dummy` 환경 변수가 필요했다.
 이 방식은 provider profile을 유지하면서 local backend를 붙일 때 가장 재현성이 좋았다.

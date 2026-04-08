@@ -42,7 +42,8 @@ OpenHarness는 model 위에 tool execution, permissions, prompt assembly, sessio
 
 source checkout만 있는 상태에서 `uv run`으로 `oh`를 어떤 폴더에서든 바로 부르면 `Failed to spawn: oh`가 났다.
 따라서 source checkout 기준 검증은 `uv run --project <path-to-OpenHarness-checkout> oh ...`로 한다.
-이 문서의 source checkout 예시는 다른 working directory에서 checkout root를 가리키는 방식으로 검증했다.
+이 문서의 source checkout 예시는 launcher checkout을 `--project <path-to-OpenHarness-checkout>`로 지정하고, prompt는 현재 working directory에서 해석되는 방식으로 검증했다.
+다른 프로젝트를 검사하려면 먼저 `cd /path/to/target-project` 한 뒤 실행한다.
 
 이 문서의 source checkout 예시는 모두 `<path-to-OpenHarness-checkout>`를 실제 checkout root로 바꿔서 실행한다.
 installed CLI가 있으면 같은 명령에서 `uv run --project <path-to-OpenHarness-checkout> oh` 부분을 `oh`로 바꿔서 쓴다.
@@ -66,7 +67,7 @@ OPENAI_API_KEY=dummy uv run --project <path-to-OpenHarness-checkout> oh \
   --api-format openai \
   --base-url http://localhost:11434/v1 \
   --model qwen2.5-coder:7b \
-  -p "Summarize the purpose of this repository in 5 bullets."
+  -p "Summarize the purpose of the current workspace in 5 bullets."
 ```
 
 이 명령이 성공하면 최소한 다음은 확인된 것이다.
@@ -77,6 +78,8 @@ OPENAI_API_KEY=dummy uv run --project <path-to-OpenHarness-checkout> oh \
 
 installed CLI를 이미 준비한 상태라면, `/tmp/openharness-demo-project` 같은 arbitrary working dir에서도 `oh`를 직접 실행할 수 있다.
 이 문서에서 확인한 source checkout 흐름은 `uv run --project <path-to-OpenHarness-checkout> oh ...`였다.
+`oh`만으로 Ollama로 가는 것은 `oh provider add`와 `oh provider use`로 provider profile을 이미 활성화한 뒤에만 성립한다.
+profile을 아직 등록하지 않았다면 source-checkout 예시처럼 `--api-format openai --base-url http://localhost:11434/v1 --model qwen2.5-coder:7b`를 직접 넘겨야 한다.
 
 ## 매일 쓰는 방식: provider profile 등록
 
@@ -96,6 +99,8 @@ OPENAI_API_KEY=dummy uv run --project <path-to-OpenHarness-checkout> oh
 ```
 
 installed CLI라면 위의 `uv run --project <path-to-OpenHarness-checkout> oh ...` 앞부분을 모두 `oh ...`로 바꾼다.
+이 흐름에서도 `oh`만 쓰는 경우는 provider profile이 `use`로 활성화된 상태를 전제로 한다.
+profile을 쓰지 않으면 `OPENAI_API_KEY=dummy`만으로는 충분하지 않고, Ollama용 flags를 명시해야 한다.
 
 profile-based flow에서는 `-k dummy`만으로는 충분하지 않았고, `OPENAI_API_KEY=dummy` 환경 변수가 필요했다.
 반복 실행할 때는 이 env var를 기본값처럼 두는 편이 안전하다.
