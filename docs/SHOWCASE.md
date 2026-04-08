@@ -64,8 +64,6 @@ See the provider compatibility table in [`README.md`](../README.md#-provider-com
 
 ## 6. Documentation-first onboarding
 
-If you are evaluating the project rather than contributing code, start here:
-
 - [`README.md`](../README.md) for install, usage, and architecture overview.
 - [`ONBOARDING_OPENHARNESS_OLLAMA.md`](./ONBOARDING_OPENHARNESS_OLLAMA.md) for a first-success local workflow with Ollama.
 - [`OPENHARNESS_ARCHITECTURE.md`](./OPENHARNESS_ARCHITECTURE.md) for a project-centered request-flow and subsystem guide.
