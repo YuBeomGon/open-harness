@@ -107,3 +107,13 @@ Ollama는 현재 codebase에서 OpenAI-compatible local backend로 취급된다.
 - `src/openharness/permissions/checker.py`
 - `src/openharness/config/settings.py`
 - `src/openharness/services/session_storage.py`
+
+## 이 문서를 검증할 때 사용한 source checks
+
+이 checks는 code가 바뀔 때 doc-to-source alignment를 유지하기 위한 기준이다.
+
+- `rg -n "provider add|provider use|--base-url|--api-format" src/openharness/cli.py`
+- `rg -n "OpenAICompatibleClient|build_runtime|cwd = str\\(Path.cwd\\(\\)\\)" src/openharness/ui/runtime.py`
+- `rg -n "QueryEngine|submit_message|continue_pending" src/openharness/engine/query_engine.py`
+- `rg -n "SENSITIVE_PATH_PATTERNS|PermissionDecision" src/openharness/permissions/checker.py`
+- `rg -n "localhost:11434|Ollama" src/openharness/api/registry.py`
