@@ -38,9 +38,21 @@ OpenHarness는 model 위에 tool execution, permissions, prompt assembly, sessio
 이 저장소에서 바로 재현하려면 source checkout 기준으로 `uv run oh`를 사용한다.
 이미 전역 설치를 끝냈다면 아래의 `uv run oh`를 `oh`로 바꿔도 된다.
 
+먼저 `ollama serve`를 별도 terminal에서 계속 실행하거나 background로 둔다.
+
 ```bash
 ollama serve
+```
+
+같은 Ollama instance를 대상으로 model을 내려받는다.
+
+```bash
 ollama pull qwen2.5-coder:14b
+```
+
+그 다음 OpenHarness를 실행한다.
+
+```bash
 OPENAI_API_KEY=dummy uv run oh \
   --api-format openai \
   --base-url http://localhost:11434/v1 \
@@ -87,7 +99,7 @@ source checkout 상태라면:
 
 ```bash
 cd /tmp/openharness-demo-project
-OPENAI_API_KEY=dummy /data/MyProject/side/harness/study/OpenHarness/.venv/bin/oh
+OPENAI_API_KEY=dummy uv run oh --cwd /tmp/openharness-demo-project
 ```
 
 ## 실제로 해볼 만한 prompt
@@ -104,5 +116,7 @@ OPENAI_API_KEY=dummy /data/MyProject/side/harness/study/OpenHarness/.venv/bin/oh
 
 ## 다음에 읽을 문서
 
-- [`OPENHARNESS_ARCHITECTURE.md`](./OPENHARNESS_ARCHITECTURE.md)
-- [`OLLAMA_OPERATION_NOTES.md`](./OLLAMA_OPERATION_NOTES.md)
+이 onboarding package에는 다음 companion 문서가 이어서 추가될 예정이다.
+
+- `OPENHARNESS_ARCHITECTURE.md`
+- `OLLAMA_OPERATION_NOTES.md`
