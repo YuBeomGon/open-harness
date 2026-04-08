@@ -35,8 +35,15 @@ OpenHarness는 model 위에 tool execution, permissions, prompt assembly, sessio
 
 ## 첫 번째 local run
 
-이 저장소에서 바로 재현하려면 source checkout 기준으로 `uv run oh`를 사용한다.
-이미 전역 설치를 끝냈다면 아래의 `uv run oh`를 `oh`로 바꿔도 된다.
+이 문서는 두 가지 launch mode를 구분한다.
+
+- source checkout validation
+- installed CLI를 arbitrary working dir에서 쓰는 방식
+
+source checkout만 있는 상태에서 `uv run`으로 `oh`를 어떤 폴더에서든 바로 부르면 `Failed to spawn: oh`가 났다.
+따라서 source checkout 기준 검증은 `uv run --project ... oh ...`로 한다.
+
+전역 설치가 끝난 뒤에는 `oh`를 직접 호출하는 경로를 쓴다.
 
 먼저 `ollama serve`를 별도 terminal에서 계속 실행하거나 background로 둔다.
 
@@ -47,16 +54,16 @@ ollama serve
 같은 Ollama instance를 대상으로 model을 내려받는다.
 
 ```bash
-ollama pull qwen2.5-coder:14b
+ollama pull qwen2.5-coder:7b
 ```
 
-그 다음 OpenHarness를 실행한다.
+source checkout 기준의 첫 검증은 다음처럼 한다.
 
 ```bash
-OPENAI_API_KEY=dummy uv run oh \
+OPENAI_API_KEY=dummy uv run --project /data/MyProject/side/harness/study/OpenHarness/.worktrees/openharness-ollama-onboarding oh \
   --api-format openai \
   --base-url http://localhost:11434/v1 \
-  --model qwen2.5-coder:14b \
+  --model qwen2.5-coder:7b \
   -p "Summarize the purpose of this repository in 5 bullets."
 ```
 
@@ -64,43 +71,41 @@ OPENAI_API_KEY=dummy uv run oh \
 
 - OpenHarness가 OpenAI-compatible path로 Ollama에 연결된다.
 - local model이 한 턴짜리 headless coding-assistant request를 처리한다.
-- 현재 문서의 핵심 claim이 실제 실행 경로와 맞는다.
+- `qwen2.5-coder:7b` 기준으로 backend connection path가 실제로 동작한다.
+
+installed CLI를 이미 준비한 상태라면, `/tmp/openharness-demo-project` 같은 arbitrary working dir에서도 `oh`를 직접 실행할 수 있다.
 
 ## 매일 쓰는 방식: provider profile 등록
 
 한 번성 테스트가 아니라 반복 사용을 원하면 profile을 등록하는 쪽이 낫다.
 
 ```bash
-uv run oh provider add ollama-local \
+uv run --project /data/MyProject/side/harness/study/OpenHarness/.worktrees/openharness-ollama-onboarding oh provider add ollama-local \
   --label "Ollama Local" \
   --provider openai \
   --api-format openai \
   --auth-source openai_api_key \
-  --model qwen2.5-coder:14b \
+  --model qwen2.5-coder:7b \
   --base-url http://localhost:11434/v1
 
-uv run oh provider use ollama-local
-OPENAI_API_KEY=dummy uv run oh
+uv run --project /data/MyProject/side/harness/study/OpenHarness/.worktrees/openharness-ollama-onboarding oh provider use ollama-local
+OPENAI_API_KEY=dummy uv run --project /data/MyProject/side/harness/study/OpenHarness/.worktrees/openharness-ollama-onboarding oh
 ```
 
-이후에는 같은 shell 세션에서 `OPENAI_API_KEY=dummy`만 유지하면 된다.
+profile-based flow에서는 `-k dummy`만으로는 충분하지 않았고, `OPENAI_API_KEY=dummy` 환경 변수가 필요했다.
+반복 실행할 때는 이 env var를 기본값처럼 두는 편이 안전하다.
 
 ## 임의 작업 폴더에서 실행하기
 
 OpenHarness는 현재 working directory를 session과 project-scoped state의 기준으로 삼는다.
-따라서 원하는 프로젝트로 이동한 뒤 그 위치에서 실행하면 된다.
+따라서 installed CLI가 있다면 원하는 프로젝트로 이동한 뒤 그 위치에서 실행하면 된다.
 
 ```bash
 cd /tmp/openharness-demo-project
 OPENAI_API_KEY=dummy oh
 ```
 
-source checkout 상태라면:
-
-```bash
-cd /tmp/openharness-demo-project
-OPENAI_API_KEY=dummy uv run oh --cwd /tmp/openharness-demo-project
-```
+source checkout validation을 유지하려면 위에서 설명한 `uv run --project ... oh ...` 패턴을 그대로 쓴다.
 
 ## 실제로 해볼 만한 prompt
 
@@ -111,12 +116,12 @@ OPENAI_API_KEY=dummy uv run oh --cwd /tmp/openharness-demo-project
 ## 현실적인 한계
 
 - local LLM의 품질이 낮으면 tool use와 planning 품질도 같이 낮아진다.
+- `qwen2.5-coder:7b`는 backend connection path를 검증하기에는 충분했지만, tool use와 workspace inspection 품질은 약했고 현재 directory/files를 잘못 추론하는 hallucination도 보였다.
 - 현재 구현에서는 OpenAI-compatible local backend에도 API key string이 필요하다.
 - Claude Code/Codex와 UX가 비슷한 지점은 있지만 완전히 동일한 product가 아니다.
 
 ## 다음에 읽을 문서
 
-이 onboarding package에는 다음 companion 문서가 이어서 추가될 예정이다.
+이 onboarding package의 companion 문서는 아래다.
 
-- `OPENHARNESS_ARCHITECTURE.md`
 - `OLLAMA_OPERATION_NOTES.md`

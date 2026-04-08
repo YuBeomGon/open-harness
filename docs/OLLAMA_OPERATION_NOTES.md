@@ -25,34 +25,38 @@ curl -s http://localhost:11434/api/tags
 
 ## 가장 짧은 연결 경로
 
-`qwen2.5-coder:14b`는 example coding model이다. fresh machine이라면 먼저 내려받고, 이미 locally available model이 있다면 그 이름으로 바꿔도 된다.
+RTX 2080 Ti class machine에서는 `qwen2.5-coder:7b`를 practical first model로 두는 편이 안전하다.
+VRAM headroom이 남는다면 다음 단계로 `qwen2.5-coder:14b`를 시도한다.
 
 ```bash
-ollama pull qwen2.5-coder:14b
+ollama pull qwen2.5-coder:7b
 ```
 
 ```bash
-OPENAI_API_KEY=dummy uv run oh \
+OPENAI_API_KEY=dummy uv run --project /data/MyProject/side/harness/study/OpenHarness/.worktrees/openharness-ollama-onboarding oh \
   --api-format openai \
   --base-url http://localhost:11434/v1 \
-  --model qwen2.5-coder:14b \
+  --model qwen2.5-coder:7b \
   -p "List files that define the permission system."
 ```
 
 ## 반복 사용을 위한 profile 방식
 
 ```bash
-uv run oh provider add ollama-local \
+uv run --project /data/MyProject/side/harness/study/OpenHarness/.worktrees/openharness-ollama-onboarding oh provider add ollama-local \
   --label "Ollama Local" \
   --provider openai \
   --api-format openai \
   --auth-source openai_api_key \
-  --model qwen2.5-coder:14b \
+  --model qwen2.5-coder:7b \
   --base-url http://localhost:11434/v1
 
-uv run oh provider use ollama-local
-OPENAI_API_KEY=dummy uv run oh
+uv run --project /data/MyProject/side/harness/study/OpenHarness/.worktrees/openharness-ollama-onboarding oh provider use ollama-local
+OPENAI_API_KEY=dummy uv run --project /data/MyProject/side/harness/study/OpenHarness/.worktrees/openharness-ollama-onboarding oh
 ```
+
+profile-based flow에서는 `-k dummy`만으로는 실행이 안 되었고, `OPENAI_API_KEY=dummy` 환경 변수가 필요했다.
+이 방식은 provider profile을 유지하면서 local backend를 붙일 때 가장 재현성이 좋았다.
 
 ## 현재 구현에서 중요한 제약
 
@@ -61,6 +65,9 @@ OPENAI_API_KEY=dummy uv run oh
 
 이 제약은 문서에서 숨기지 말고 명시한다.
 
+또한 `codellama:13b`는 테스트 중 Ollama OpenAI-compatible path에서 `does not support tools`를 반환했다.
+Claude-Code-like tool use를 기대할 때는 이 모델을 practical option으로 보지 않는 편이 낫다.
+
 ## 권장 usage
 
 - repository summary
@@ -68,6 +75,7 @@ OPENAI_API_KEY=dummy uv run oh
 - permission and architecture explanation
 - low-risk refactor brainstorming
 
+`qwen2.5-coder:7b`는 backend 연결과 basic prompt handling을 확인하는 데는 유효했지만, tool use와 workspace inspection 품질은 약했고 현재 directory/files를 잘못 추론하는 경우가 있었다.
 local model quality가 충분하지 않다면, large patch generation이나 복잡한 multi-step tool planning은 기대치를 낮춰야 한다.
 
 ## Troubleshooting
@@ -105,6 +113,15 @@ curl -s http://localhost:11434/api/tags
 - prompt를 더 짧고 명시적으로 쓴다.
 - one-shot summarization이나 code reading 위주로 사용한다.
 - model class를 더 강한 coding model로 올린다.
+
+### 증상: `codellama:13b`가 tools를 지원하지 않는다고 나온다
+
+원인:
+- Ollama OpenAI-compatible path에서 해당 model이 tools-capable로 노출되지 않았다.
+
+대응:
+- `qwen2.5-coder:7b`부터 다시 확인한다.
+- VRAM headroom이 있으면 `qwen2.5-coder:14b`를 시도한다.
 
 ## Observed limitations
 
