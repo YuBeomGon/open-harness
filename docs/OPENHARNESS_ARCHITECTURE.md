@@ -38,7 +38,7 @@
 7. 결과는 다시 conversation에 주입되고, 필요하면 다음 model turn으로 이어진다.
 8. 세션 스냅샷은 `src/openharness/services/session_storage.py`를 통해 project-scoped 형태로 저장된다.
 
-## 왜 임의 작업 폴더에서 동작하는가
+## 작업 폴더 단위 scope
 
 OpenHarness는 현재 working directory를 단순한 shell 위치가 아니라 project boundary로 취급한다.
 이 경계는 최소한 다음 항목들에 영향을 준다.
@@ -65,6 +65,10 @@ bash, file I/O, search, MCP, tasks, agent/team 관련 built-in tool이 registry�
 
 sensitive path deny, read-only allow, plan mode block, default confirmation 같은 safety 정책이 여기서 적용된다.
 
+### `config`
+
+settings, profile materialization, path resolution, runtime defaults/overrides를 담당한다.
+
 ### `prompts`
 
 system prompt, environment info, CLAUDE.md, memory, skill registry가 한 runtime prompt로 합쳐진다.
@@ -90,3 +94,16 @@ Ollama는 현재 codebase에서 OpenAI-compatible local backend로 취급된다.
 - `src/openharness/ui/runtime.py`: resolved settings를 바탕으로 `OpenAICompatibleClient` 생성
 - `src/openharness/api/openai_client.py`: OpenAI-compatible streaming path
 - `src/openharness/api/registry.py`: `http://localhost:11434/v1` 같은 local backend 식별
+
+## deeper dive를 위한 source entry points
+
+다음 파일을 순서대로 열어보면 request flow와 책임 분리가 더 잘 보인다.
+
+- `src/openharness/cli.py`
+- `src/openharness/ui/runtime.py`
+- `src/openharness/engine/query_engine.py`
+- `src/openharness/engine/query.py`
+- `src/openharness/tools/__init__.py`
+- `src/openharness/permissions/checker.py`
+- `src/openharness/config/settings.py`
+- `src/openharness/services/session_storage.py`
