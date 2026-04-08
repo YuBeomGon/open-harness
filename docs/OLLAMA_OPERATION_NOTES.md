@@ -5,6 +5,10 @@
 이 문서는 OpenHarness에 Ollama를 붙일 때 필요한 실전 메모를 정리한다.
 setup command만 나열하지 않고, 실제로 어디서 잘 되고 어디서 흔들리는지까지 기록한다.
 
+이 문서의 source-checkout command는 `uv run --project <path-to-OpenHarness-checkout> oh ...` 형태를 기준으로 한다.
+이 표기는 다른 working directory에서 checkout root를 가리키는 방식으로 검증한 경로다.
+OpenHarness가 installed CLI로 이미 제공되는 환경이라면, 같은 명령에서 `uv run --project <path-to-OpenHarness-checkout> oh` 부분을 plain `oh`로 바꿔서 실행한다.
+
 ## 빠른 health check
 
 `ollama serve`는 foreground process다. 다른 terminal이나 background에서 계속 띄운 뒤, 아래 확인 명령을 별도 shell에서 실행한다.
@@ -33,7 +37,7 @@ ollama pull qwen2.5-coder:7b
 ```
 
 ```bash
-OPENAI_API_KEY=dummy uv run --project /data/MyProject/side/harness/study/OpenHarness/.worktrees/openharness-ollama-onboarding oh \
+OPENAI_API_KEY=dummy uv run --project <path-to-OpenHarness-checkout> oh \
   --api-format openai \
   --base-url http://localhost:11434/v1 \
   --model qwen2.5-coder:7b \
@@ -43,7 +47,7 @@ OPENAI_API_KEY=dummy uv run --project /data/MyProject/side/harness/study/OpenHar
 ## 반복 사용을 위한 profile 방식
 
 ```bash
-uv run --project /data/MyProject/side/harness/study/OpenHarness/.worktrees/openharness-ollama-onboarding oh provider add ollama-local \
+uv run --project <path-to-OpenHarness-checkout> oh provider add ollama-local \
   --label "Ollama Local" \
   --provider openai \
   --api-format openai \
@@ -51,9 +55,11 @@ uv run --project /data/MyProject/side/harness/study/OpenHarness/.worktrees/openh
   --model qwen2.5-coder:7b \
   --base-url http://localhost:11434/v1
 
-uv run --project /data/MyProject/side/harness/study/OpenHarness/.worktrees/openharness-ollama-onboarding oh provider use ollama-local
-OPENAI_API_KEY=dummy uv run --project /data/MyProject/side/harness/study/OpenHarness/.worktrees/openharness-ollama-onboarding oh
+uv run --project <path-to-OpenHarness-checkout> oh provider use ollama-local
+OPENAI_API_KEY=dummy uv run --project <path-to-OpenHarness-checkout> oh
 ```
+
+installed CLI를 쓰는 경우에는 위 예시의 source-checkout prefix를 모두 `oh`로 치환한다.
 
 profile-based flow에서는 `-k dummy`만으로는 실행이 안 되었고, `OPENAI_API_KEY=dummy` 환경 변수가 필요했다.
 이 방식은 provider profile을 유지하면서 local backend를 붙일 때 가장 재현성이 좋았다.

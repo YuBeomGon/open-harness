@@ -41,9 +41,11 @@ OpenHarness는 model 위에 tool execution, permissions, prompt assembly, sessio
 - installed CLI를 arbitrary working dir에서 쓰는 방식
 
 source checkout만 있는 상태에서 `uv run`으로 `oh`를 어떤 폴더에서든 바로 부르면 `Failed to spawn: oh`가 났다.
-따라서 source checkout 기준 검증은 `uv run --project ... oh ...`로 한다.
+따라서 source checkout 기준 검증은 `uv run --project <path-to-OpenHarness-checkout> oh ...`로 한다.
+이 문서의 source checkout 예시는 다른 working directory에서 checkout root를 가리키는 방식으로 검증했다.
 
-전역 설치가 끝난 뒤에는 `oh`를 직접 호출하는 경로를 쓴다.
+이 문서의 source checkout 예시는 모두 `<path-to-OpenHarness-checkout>`를 실제 checkout root로 바꿔서 실행한다.
+installed CLI가 있으면 같은 명령에서 `uv run --project <path-to-OpenHarness-checkout> oh` 부분을 `oh`로 바꿔서 쓴다.
 
 먼저 `ollama serve`를 별도 terminal에서 계속 실행하거나 background로 둔다.
 
@@ -60,7 +62,7 @@ ollama pull qwen2.5-coder:7b
 source checkout 기준의 첫 검증은 다음처럼 한다.
 
 ```bash
-OPENAI_API_KEY=dummy uv run --project /data/MyProject/side/harness/study/OpenHarness/.worktrees/openharness-ollama-onboarding oh \
+OPENAI_API_KEY=dummy uv run --project <path-to-OpenHarness-checkout> oh \
   --api-format openai \
   --base-url http://localhost:11434/v1 \
   --model qwen2.5-coder:7b \
@@ -74,13 +76,14 @@ OPENAI_API_KEY=dummy uv run --project /data/MyProject/side/harness/study/OpenHar
 - `qwen2.5-coder:7b` 기준으로 backend connection path가 실제로 동작한다.
 
 installed CLI를 이미 준비한 상태라면, `/tmp/openharness-demo-project` 같은 arbitrary working dir에서도 `oh`를 직접 실행할 수 있다.
+이 문서에서 확인한 source checkout 흐름은 `uv run --project <path-to-OpenHarness-checkout> oh ...`였다.
 
 ## 매일 쓰는 방식: provider profile 등록
 
 한 번성 테스트가 아니라 반복 사용을 원하면 profile을 등록하는 쪽이 낫다.
 
 ```bash
-uv run --project /data/MyProject/side/harness/study/OpenHarness/.worktrees/openharness-ollama-onboarding oh provider add ollama-local \
+uv run --project <path-to-OpenHarness-checkout> oh provider add ollama-local \
   --label "Ollama Local" \
   --provider openai \
   --api-format openai \
@@ -88,9 +91,11 @@ uv run --project /data/MyProject/side/harness/study/OpenHarness/.worktrees/openh
   --model qwen2.5-coder:7b \
   --base-url http://localhost:11434/v1
 
-uv run --project /data/MyProject/side/harness/study/OpenHarness/.worktrees/openharness-ollama-onboarding oh provider use ollama-local
-OPENAI_API_KEY=dummy uv run --project /data/MyProject/side/harness/study/OpenHarness/.worktrees/openharness-ollama-onboarding oh
+uv run --project <path-to-OpenHarness-checkout> oh provider use ollama-local
+OPENAI_API_KEY=dummy uv run --project <path-to-OpenHarness-checkout> oh
 ```
+
+installed CLI라면 위의 `uv run --project <path-to-OpenHarness-checkout> oh ...` 앞부분을 모두 `oh ...`로 바꾼다.
 
 profile-based flow에서는 `-k dummy`만으로는 충분하지 않았고, `OPENAI_API_KEY=dummy` 환경 변수가 필요했다.
 반복 실행할 때는 이 env var를 기본값처럼 두는 편이 안전하다.
@@ -105,7 +110,7 @@ cd /tmp/openharness-demo-project
 OPENAI_API_KEY=dummy oh
 ```
 
-source checkout validation을 유지하려면 위에서 설명한 `uv run --project ... oh ...` 패턴을 그대로 쓴다.
+source checkout validation을 유지하려면 위에서 설명한 `uv run --project <path-to-OpenHarness-checkout> oh ...` 패턴을 그대로 쓴다.
 
 ## 실제로 해볼 만한 prompt
 
