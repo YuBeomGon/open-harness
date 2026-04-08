@@ -132,6 +132,9 @@ source checkout validation을 유지하려면 위에서 설명한 `uv run --proj
 
 ## 다음에 읽을 문서
 
-이 onboarding package의 companion 문서는 아래다.
+이 onboarding package의 companion 문서는 layered package로 묶어서 읽는 것이 좋다.
 
-- `OLLAMA_OPERATION_NOTES.md`
+- `OPENHARNESS_ARCHITECTURE.md`: OpenHarness의 layer, request flow, subsystem responsibility를 먼저 잡는 architecture guide다.
+- `OLLAMA_OPERATION_NOTES.md`: Ollama 연결, validation caveat, troubleshooting을 정리한 operation notes다.
+
+먼저 `OPENHARNESS_ARCHITECTURE.md`로 구조를 잡고, 그 다음 `OLLAMA_OPERATION_NOTES.md`로 실행 메모를 확인하면 된다.

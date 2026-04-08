@@ -32,8 +32,8 @@ curl -s http://localhost:11434/api/tags
 
 ## 가장 짧은 연결 경로
 
-RTX 2080 Ti class machine에서는 `qwen2.5-coder:7b`를 practical first model로 두는 편이 안전하다.
-VRAM headroom이 남는다면 다음 단계로 `qwen2.5-coder:14b`를 시도한다.
+RTX 2080 Ti class machine에서는 `qwen2.5-coder:7b`를 validated baseline으로 두는 편이 안전하다.
+VRAM headroom이 남더라도 `qwen2.5-coder:14b`는 아직 검증하지 않은 larger variant이므로, 다음 실험 후보로만 남겨둔다.
 
 ```bash
 ollama pull qwen2.5-coder:7b
@@ -87,6 +87,7 @@ Claude-Code-like tool use를 기대할 때는 이 모델을 practical option으�
 - low-risk refactor brainstorming
 
 `qwen2.5-coder:7b`는 backend 연결과 basic prompt handling을 확인하는 데는 유효했지만, tool use와 workspace inspection 품질은 약했고 현재 directory/files를 잘못 추론하는 경우가 있었다.
+`qwen2.5-coder:14b`는 이 문서에서 아직 검증하지 않았으므로, validated recommendation으로 적지 않는다.
 local model quality가 충분하지 않다면, large patch generation이나 복잡한 multi-step tool planning은 기대치를 낮춰야 한다.
 
 ## Troubleshooting
@@ -132,7 +133,7 @@ curl -s http://localhost:11434/api/tags
 
 대응:
 - `qwen2.5-coder:7b`부터 다시 확인한다.
-- VRAM headroom이 있으면 `qwen2.5-coder:14b`를 시도한다.
+- VRAM headroom이 있더라도 `qwen2.5-coder:14b`는 아직 검증 전인 larger variant로만 취급한다.
 
 ## Observed limitations
 
