@@ -7,8 +7,13 @@ setup command만 나열하지 않고, 실제로 어디서 잘 되고 어디서 �
 
 ## 빠른 health check
 
+`ollama serve`는 foreground process다. 다른 terminal이나 background에서 계속 띄운 뒤, 아래 확인 명령을 별도 shell에서 실행한다.
+
 ```bash
 ollama serve
+```
+
+```bash
 ollama list
 curl -s http://localhost:11434/api/tags
 ```
@@ -19,6 +24,12 @@ curl -s http://localhost:11434/api/tags
 - `/api/tags` 응답 JSON에 `models` 배열이 들어 있다.
 
 ## 가장 짧은 연결 경로
+
+`qwen2.5-coder:14b`는 example coding model이다. fresh machine이라면 먼저 내려받고, 이미 locally available model이 있다면 그 이름으로 바꿔도 된다.
+
+```bash
+ollama pull qwen2.5-coder:14b
+```
 
 ```bash
 OPENAI_API_KEY=dummy uv run oh \
