@@ -76,7 +76,7 @@ system prompt, environment info, CLAUDE.md, memory, skill registry가 한 runtim
 ### `plugins` / `skills`
 
 plugins는 user-global과 project-local plugin directory를 읽어 extension surface를 구성한다.
-skills는 bundled skills, `~/.openharness/skills`의 user skills, 그리고 plugin loading을 통해 발견되는 plugin-provided skills를 합쳐 노출한다.
+skills는 bundled skills, configured config dir의 user skills (`<config-dir>/skills`), 그리고 plugin loading을 통해 발견되는 plugin-provided skills를 합쳐 노출한다.
 
 ### `memory`, `tasks`, `swarm`
 
