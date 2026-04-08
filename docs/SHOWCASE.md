@@ -66,7 +66,10 @@ See the provider compatibility table in [`README.md`](../README.md#-provider-com
 
 If you are evaluating the project rather than contributing code, start here:
 
-- [`README.md`](../README.md) for install, usage, and architecture.
+- [`README.md`](../README.md) for install, usage, and architecture overview.
+- [`ONBOARDING_OPENHARNESS_OLLAMA.md`](./ONBOARDING_OPENHARNESS_OLLAMA.md) for a first-success local workflow with Ollama.
+- [`OPENHARNESS_ARCHITECTURE.md`](./OPENHARNESS_ARCHITECTURE.md) for a project-centered request-flow and subsystem guide.
+- [`OLLAMA_OPERATION_NOTES.md`](./OLLAMA_OPERATION_NOTES.md) for local-LLM setup notes, limitations, and troubleshooting.
 - [`CONTRIBUTING.md`](../CONTRIBUTING.md) for contributor workflow.
 - [`CHANGELOG.md`](../CHANGELOG.md) for visible repo changes.
 

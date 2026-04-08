@@ -159,6 +159,9 @@ OpenHarness is an open-source Python implementation designed for **researchers, 
   <strong>Start here:</strong>
   <a href="#-quick-start">Quick Start</a> ·
   <a href="#-provider-compatibility">Provider Compatibility</a> ·
+  <a href="docs/ONBOARDING_OPENHARNESS_OLLAMA.md">OpenHarness + Ollama Onboarding</a> ·
+  <a href="docs/OPENHARNESS_ARCHITECTURE.md">Architecture Guide</a> ·
+  <a href="docs/OLLAMA_OPERATION_NOTES.md">Ollama Operation Notes</a> ·
   <a href="docs/SHOWCASE.md">Showcase</a> ·
   <a href="CONTRIBUTING.md">Contributing</a> ·
   <a href="CHANGELOG.md">Changelog</a>
