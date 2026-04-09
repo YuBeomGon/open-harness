@@ -1,0 +1,59 @@
+<svg>
+<defs>
+<marker><path></path></marker>
+</defs>
+<!-- Timeline -->
+<line></line>
+<!-- Nodes -->
+<g>
+<circle></circle>
+<text>①</text>
+<text>compact</text>
+<text>토큰 체크</text>
+<text>필요시 압축</text>
+</g>
+<line></line>
+<g>
+<circle></circle>
+<text>②</text>
+<text>stream</text>
+<text>API 호출</text>
+<text>텍스트 스트리밍</text>
+</g>
+<line></line>
+<g>
+<circle></circle>
+<text>③</text>
+<text>판단</text>
+<text>tool_use?</text>
+<text>계속 or 종료</text>
+</g>
+<line></line>
+<g>
+<circle></circle>
+<text>④</text>
+<text>Permission</text>
+<text>권한 체크</text>
+<text>6단계 평가</text>
+</g>
+<line></line>
+<g>
+<circle></circle>
+<text>⑤</text>
+<text>Execute</text>
+<text>도구 실행</text>
+<text>결과 반환</text>
+</g>
+<line></line>
+<g>
+<circle></circle>
+<text>⑥</text>
+<text>append</text>
+<text>결과를 messages에</text>
+<text>추가 → 다음 턴</text>
+</g>
+<!-- Labels -->
+<text>⏱ 0ms</text>
+<text>⏱ API 응답 대기 (1~30초)</text>
+<text>⏱ 도구 실행 (0~120초)</text>
+</svg>

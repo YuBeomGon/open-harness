@@ -1,0 +1,38 @@
+<svg>
+<defs>
+<marker><path></path></marker>
+<marker><path></path></marker>
+</defs>
+<rect></rect>
+<text>사용자 메시지 입력</text>
+<line></line>
+<rect></rect>
+<text>submit_message → messages에 추가</text>
+<line></line>
+<rect></rect>
+<text>while turn_count &lt; max_turns (기본 200)</text>
+<rect></rect>
+<text>① Auto-Compact 체크</text>
+<line></line>
+<rect></rect>
+<text>② API stream_message</text>
+<line></line>
+<rect></rect>
+<text>messages.append(assistant_msg)</text>
+<line></line>
+<polygon></polygon>
+<text>tool_uses?</text>
+<line></line>
+<text>NO</text>
+<rect></rect>
+<text>return 종료</text>
+<line></line>
+<text>YES</text>
+<rect></rect>
+<text>④ Tool Execution (6단계 체인)</text>
+<line></line>
+<rect></rect>
+<text>messages.append(tool_results)</text>
+<path></path>
+<text>다음 턴 ↑</text>
+</svg>

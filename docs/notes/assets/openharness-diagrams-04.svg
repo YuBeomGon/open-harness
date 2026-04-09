@@ -1,0 +1,56 @@
+<svg>
+<defs>
+<marker><path></path></marker>
+<marker><path></path></marker>
+</defs>
+<!-- Step 1: PreHook -->
+<rect></rect>
+<text>① PreToolUse Hook</text>
+<text>등록된 훅 실행 (command/http/prompt/agent)</text>
+<text>matcher로 해당 도구에 매칭되는 훅만</text>
+<!-- Fail branch -->
+<line></line>
+<rect></rect>
+<text>blocked → 중단</text>
+<line></line>
+<!-- Step 2: Registry Lookup -->
+<rect></rect>
+<text>② Tool Registry Lookup</text>
+<text>tool_registry.get(tool_name) — 존재하지 않으면 에러</text>
+<line></line>
+<rect></rect>
+<text>Unknown tool</text>
+<line></line>
+<!-- Step 3: Pydantic Validation -->
+<rect></rect>
+<text>③ Pydantic Input Validation</text>
+<text>tool.input_model.model_validate(tool_input)</text>
+<line></line>
+<rect></rect>
+<text>Invalid input</text>
+<line></line>
+<!-- Step 4: Permission Check -->
+<rect></rect>
+<text>④ Permission Evaluation</text>
+<text>sensitive paths → denied_tools → path_rules</text>
+<text>→ denied_commands → PermissionMode 분기</text>
+<text>requires_confirmation → 사용자에게 물어봄</text>
+<line></line>
+<rect></rect>
+<text>Denied</text>
+<line></line>
+<!-- Step 5: Execute -->
+<rect></rect>
+<text>⑤ tool.execute(parsed_input, context)</text>
+<text>실제 도구 실행 — bash, file I/O, web, agent 등</text>
+<text>time.monotonic()로 실행 시간 측정</text>
+<line></line>
+<!-- Step 6: PostHook -->
+<rect></rect>
+<text>⑥ PostToolUse Hook</text>
+<text>결과(output, is_error)와 함께 훅 실행</text>
+<line></line>
+<!-- Result -->
+<rect></rect>
+<text>→ ToolResultBlock 반환</text>
+</svg>

@@ -1,0 +1,33 @@
+<svg>
+<defs><marker><path></path></marker></defs>
+<!-- Main agent -->
+<rect></rect>
+<text>Main Agent Loop</text>
+<text>QueryEngine + run_query</text>
+<!-- Agent tool call -->
+<text>agent(prompt=&quot;...&quot;, team=&quot;research&quot;)</text>
+<!-- Spawn arrows -->
+<line></line>
+<line></line>
+<line></line>
+<!-- Sub agents -->
+<rect></rect>
+<text>Sub-Agent #1</text>
+<text>in_process</text>
+<text>asyncio Task + ContextVar 격리</text>
+<rect></rect>
+<text>Sub-Agent #2</text>
+<text>subprocess</text>
+<text>별도 프로세스</text>
+<rect></rect>
+<text>Sub-Agent #3</text>
+<text>tmux pane</text>
+<text>시각적 터미널 패인</text>
+<!-- Team registry -->
+<rect></rect>
+<text>TeamRegistry</text>
+<text>teams → agents[] → messages[] | Mailbox (파일 기반 async 큐)</text>
+<line></line>
+<line></line>
+<line></line>
+</svg>

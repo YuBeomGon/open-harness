@@ -1,0 +1,28 @@
+<svg>
+<defs><marker><path></path></marker>
+<marker><path></path></marker></defs>
+<rect></rect>
+<text>토큰 ≥ 167K? (200K - 20K - 13K)</text>
+<line></line>
+<text>NO → 진행</text>
+<line></line>
+<text>YES</text>
+<rect></rect>
+<text>1단계: Microcompact (무료)</text>
+<text>오래된 tool result → &quot;[Old tool result content cleared]&quot;</text>
+<text>대상: read_file, bash, grep, glob, web_*, edit_file, write_file | 최근 5개 보존</text>
+<line></line>
+<polygon></polygon>
+<text>아직 초과?</text>
+<line></line>
+<text>NO → 충분!</text>
+<line></line>
+<rect></rect>
+<text>2단계: Full Compact (LLM 요약)</text>
+<text>older → LLM 요약 → &lt;analysis&gt; + &lt;summary&gt; 9섹션</text>
+<text>preserve_recent=6 | max_tokens=20,000 | 연속 실패 3회 시 비활성화</text>
+<text>결과: [summary_msg, ...최근6개] → 새 messages</text>
+<line></line>
+<rect></rect>
+<text>압축된 messages로 교체</text>
+</svg>

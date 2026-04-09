@@ -1,0 +1,23 @@
+<svg>
+<!-- Context window representation -->
+<rect></rect>
+<text>모델의 컨텍스트 윈도우 (~200K tokens)</text>
+<!-- System prompt -->
+<rect></rect>
+<text>System Prompt (7 Layers)</text>
+<text>~5K-15K tokens (프로젝트마다 다름)</text>
+<!-- Compacted older messages -->
+<rect></rect>
+<text>[Compact Summary] 이전 대화 요약</text>
+<text>~2K-8K tokens</text>
+<!-- Recent messages -->
+<rect></rect>
+<text>user: &quot;이 함수 리팩토링해줘&quot;</text>
+<rect></rect>
+<text>assistant: &quot;read_file 호출하겠습니다&quot; + [tool_use: read_file]</text>
+<text>TextBlock + ToolUseBlock 혼합</text>
+<rect></rect>
+<text>user: [tool_result: &quot;def calculate(x):  ...파일 내용...&quot;]</text>
+<rect></rect>
+<text>← 여기서부터 모델이 다음 응답을 생성</text>
+</svg>

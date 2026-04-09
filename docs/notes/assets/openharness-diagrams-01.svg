@@ -1,0 +1,58 @@
+<svg>
+<defs>
+<marker><path></path></marker>
+<marker><path></path></marker>
+<marker><path></path></marker>
+<filter><fegaussianblur></fegaussianblur><femerge><femergenode></femergenode><femergenode></femergenode></femerge></filter>
+</defs>
+<!-- User Input -->
+<rect></rect>
+<text>사용자 메시지 입력</text>
+<!-- Arrow -->
+<line></line>
+<!-- Submit message -->
+<rect></rect>
+<text>submit_message(prompt)</text>
+<text>messages에 user msg 추가</text>
+<line></line>
+<!-- WHILE LOOP BOX -->
+<rect></rect>
+<text>while turn_count &lt; max_turns</text>
+<!-- Phase 1: Auto-Compact -->
+<rect></rect>
+<text>① Auto-Compact 체크</text>
+<text>토큰 초과? → micro/full compact</text>
+<line></line>
+<!-- Phase 2: API Stream -->
+<rect></rect>
+<text>② API 스트리밍 호출</text>
+<text>stream_message → TextDelta yield</text>
+<line></line>
+<!-- Append assistant msg -->
+<rect></rect>
+<text>messages.append(assistant_msg)</text>
+<line></line>
+<!-- Decision Diamond -->
+<polygon></polygon>
+<text>tool_uses</text>
+<text>있나?</text>
+<!-- NO → End -->
+<line></line>
+<text>NO</text>
+<rect></rect>
+<text>return 종료</text>
+<!-- YES → Tool Execution -->
+<line></line>
+<text>YES</text>
+<!-- Phase 4: Tool Execution -->
+<rect></rect>
+<text>④ Tool Execution (6단계 체인)</text>
+<text>PreHook → Perm → Execute → PostHook</text>
+<line></line>
+<!-- Append tool results -->
+<rect></rect>
+<text>messages.append(role=&quot;user&quot;, tool_results)</text>
+<!-- Loop back arrow -->
+<path></path>
+<text>다음 턴 ↑</text>
+</svg>

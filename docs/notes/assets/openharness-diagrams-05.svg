@@ -1,0 +1,55 @@
+<svg>
+<defs>
+<marker><path></path></marker>
+<marker><path></path></marker>
+<marker><path></path></marker>
+</defs>
+<!-- Chain of checks -->
+<rect></rect>
+<text>Sensitive Paths</text>
+<text>.ssh, .aws, .gnupg 등</text>
+<text>✕ 절대 오버라이드 불가</text>
+<line></line>
+<rect></rect>
+<text>denied_tools</text>
+<text>명시적 도구 차단</text>
+<line></line>
+<rect></rect>
+<text>allowed_tools</text>
+<text>명시적 도구 허용</text>
+<line></line>
+<rect></rect>
+<text>path_rules</text>
+<text>fnmatch glob 패턴</text>
+<!-- Second row -->
+<line></line>
+<rect></rect>
+<text>denied_commands</text>
+<text>rm -rf, DROP TABLE 등</text>
+<line></line>
+<!-- Mode decision -->
+<polygon></polygon>
+<text>Mode?</text>
+<!-- FULL_AUTO -->
+<line></line>
+<rect></rect>
+<text>FULL_AUTO</text>
+<text>✓ 전부 허용</text>
+<!-- read_only check -->
+<line></line>
+<polygon></polygon>
+<text>read_only?</text>
+<line></line>
+<text>YES → ✓ 허용</text>
+<line></line>
+<!-- PLAN -->
+<polygon></polygon>
+<text>PLAN?</text>
+<line></line>
+<text>YES → ✕ 쓰기 차단</text>
+<!-- DEFAULT -->
+<line></line>
+<rect></rect>
+<text>DEFAULT → 사용자 확인</text>
+<text>requires_confirmation=True</text>
+</svg>

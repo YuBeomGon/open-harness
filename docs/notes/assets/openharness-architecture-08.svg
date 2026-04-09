@@ -1,0 +1,31 @@
+<svg>
+<!-- Core -->
+<rect></rect>
+<text>핵심부 (CORE)</text>
+<rect></rect>
+<text>🔄</text>
+<text>The Loop</text>
+<text>run_query</text>
+<rect></rect>
+<text>🔧</text>
+<text>Tool Exec</text>
+<text>6단계 체인</text>
+<rect></rect>
+<text>🧠</text>
+<text>Context</text>
+<text>7-Layer + Compact</text>
+<!-- Periphery labels -->
+<text>🛡️ 안전</text>
+<text>Permission + Hook</text>
+<line></line>
+<text>🔧 확장</text>
+<text>Skills + Plugins + MCP</text>
+<line></line>
+<text>🤝 Multi-Agent</text>
+<text>Swarm + Tasks</text>
+<line></line>
+<text>🖥️ 인터페이스</text>
+<text>CLI + React TUI + ohmo</text>
+<line></line>
+<text>주변부는 핵심부를 <tspan>보호</tspan> · <tspan>확장</tspan> · <tspan>복제</tspan> · <tspan>표시</tspan>합니다</text>
+</svg>

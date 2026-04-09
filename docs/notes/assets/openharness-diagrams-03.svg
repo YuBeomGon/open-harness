@@ -1,0 +1,41 @@
+<svg>
+<defs>
+<marker><path></path></marker>
+</defs>
+<!-- Sequential (single tool) -->
+<text>도구 1개 → 순차 실행</text>
+<rect></rect>
+<rect></rect>
+<text>Started yield</text>
+<line></line>
+<rect></rect>
+<text>await execute</text>
+<line></line>
+<rect></rect>
+<text>Completed yield</text>
+<text>실시간 피드백 가능 (이벤트 사이에 UI 업데이트)</text>
+<!-- Parallel (multiple tools) -->
+<text>도구 N개 → 병렬 실행</text>
+<rect></rect>
+<!-- All started first -->
+<rect></rect>
+<text>Started #1</text>
+<rect></rect>
+<text>Started #2</text>
+<rect></rect>
+<text>...</text>
+<text>↓ 시작 이벤트 전부 발행 후</text>
+<!-- Concurrent execution -->
+<rect></rect>
+<text>asyncio.gather(*[execute(tc) for tc])</text>
+<text>모든 도구 동시 실행 → 가장 느린 것 기준 완료</text>
+<text>↓ 전부 완료 후</text>
+<!-- All completed after -->
+<rect></rect>
+<text>Completed #1</text>
+<rect></rect>
+<text>Completed #2</text>
+<rect></rect>
+<text>...</text>
+<text>대기 시간 절약 (예: 파일 3개 동시 읽기)</text>
+</svg>

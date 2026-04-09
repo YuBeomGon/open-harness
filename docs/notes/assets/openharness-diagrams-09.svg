@@ -1,0 +1,22 @@
+<svg>
+<!-- Three pillars -->
+<rect></rect>
+<text>🔄</text>
+<text>The Loop</text>
+<text>모델이 &quot;더 할 일 있어&quot;</text>
+<text>라고 말하는 한 반복</text>
+<text>run_query · while loop</text>
+<rect></rect>
+<text>🔧</text>
+<text>Tool Execution</text>
+<text>모델의 결정을 실제로</text>
+<text>실행하는 6단계 체인</text>
+<text>_execute_tool_call</text>
+<rect></rect>
+<text>🧠</text>
+<text>Context Assembly</text>
+<text>모델이 똑똑하게</text>
+<text>행동할 수 있게 만드는 기억</text>
+<text>prompt assembly · compact</text>
+<text>권한, 훅, 멀티에이전트, TUI — 전부 이 3가지를 <tspan>보호</tspan>하거나 <tspan>확장</tspan>하는 것</text>
+</svg>

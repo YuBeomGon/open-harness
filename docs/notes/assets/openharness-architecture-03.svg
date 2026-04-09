@@ -1,0 +1,26 @@
+<svg>
+<rect></rect>
+<text>L1 — Base Prompt + Environment</text>
+<text>행동 원칙, 도구 규칙, 톤 + OS/shell/cwd/git/date</text>
+<rect></rect>
+<text>L2 — Session Settings</text>
+<text>fast_mode, effort, passes</text>
+<rect></rect>
+<text>L3 — Available Skills</text>
+<text>번들+사용자+플러그인 스킬 목록 → 모델이 skill() 도구로 로딩</text>
+<rect></rect>
+<text>L4 — CLAUDE.md (프로젝트 인스트럭션)</text>
+<text>cwd→상위 순회, .claude/rules/*.md, 파일당 12K자 제한</text>
+<rect></rect>
+<text>L5 — Issue / PR Context</text>
+<text>현재 이슈·PR 코멘트 (있으면)</text>
+<rect></rect>
+<text>L6 — MEMORY.md Index</text>
+<text>영속 메모리 엔트리포인트 (최대 200줄)</text>
+<rect></rect>
+<text>L7 — Relevant Memories</text>
+<text>사용자 입력 기반 검색 (max 5개, frontmatter 2×, body 1×)</text>
+<line></line>
+<rect></rect>
+<text>&quot;\n\n&quot;.join → API 전송</text>
+</svg>

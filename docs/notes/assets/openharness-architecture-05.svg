@@ -1,0 +1,31 @@
+<svg>
+<defs><marker><path></path></marker></defs>
+<rect></rect>
+<text>Sensitive</text>
+<text>Paths</text>
+<text>하드코딩, 오버라이드 불가</text>
+<line></line>
+<rect></rect>
+<text>denied</text>
+<text>tools</text>
+<line></line>
+<rect></rect>
+<text>allowed</text>
+<text>tools</text>
+<line></line>
+<rect></rect>
+<text>path</text>
+<text>rules</text>
+<line></line>
+<rect></rect>
+<text>denied</text>
+<text>commands</text>
+<line></line>
+<polygon></polygon>
+<text>Mode?</text>
+<text>FULL_AUTO → ✓ 허용</text>
+<text>read_only → ✓ 허용</text>
+<text>PLAN → ✕ 차단</text>
+<text>DEFAULT → 사용자 확인</text>
+<text>.ssh/* · .aws/credentials · .gnupg/* · .docker/config.json · .kube/config</text>
+</svg>

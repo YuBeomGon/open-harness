@@ -1,0 +1,36 @@
+<svg>
+<defs><marker><path></path></marker>
+<marker><path></path></marker></defs>
+<rect></rect>
+<text>① PreToolUse Hook</text>
+<text>matcher 매칭 → command/http/prompt/agent 실행</text>
+<line></line>
+<text>blocked</text>
+<line></line>
+<rect></rect>
+<text>② Registry Lookup</text>
+<text>tool_registry.get(tool_name) — 없으면 &quot;Unknown tool&quot;</text>
+<line></line>
+<rect></rect>
+<text>③ Pydantic Validation</text>
+<text>input_model.model_validate(tool_input)</text>
+<line></line>
+<rect></rect>
+<text>④ Permission Check</text>
+<text>sensitive → denied → path_rules → mode 분기</text>
+<text>requires_confirmation → 사용자에게 승인 요청</text>
+<line></line>
+<rect></rect>
+<text>⑤ tool.execute(input, context)</text>
+<text>실제 실행 + time.monotonic()로 시간 측정</text>
+<line></line>
+<rect></rect>
+<text>⑥ PostToolUse Hook</text>
+<text>결과(output, is_error)와 함께 훅 실행</text>
+<line></line>
+<rect></rect>
+<text>ToolResultBlock 반환</text>
+<text>어느 단계에서든
+</text>
+<text>실패 → is_error=True</text>
+</svg>

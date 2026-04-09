@@ -1,0 +1,41 @@
+<svg>
+<!-- Components flowing into RuntimeBundle -->
+<rect></rect>
+<text>API Client</text>
+<rect></rect>
+<text>ToolRegistry</text>
+<rect></rect>
+<text>PermissionChecker</text>
+<rect></rect>
+<text>HookExecutor</text>
+<rect></rect>
+<text>MCP Manager</text>
+<!-- Arrows down -->
+<line></line>
+<line></line>
+<line></line>
+<line></line>
+<line></line>
+<!-- RuntimeBundle -->
+<rect></rect>
+<text>RuntimeBundle</text>
+<text>모든 의존성을 한 곳에 조립 → QueryEngine 생성</text>
+<!-- Down to QueryEngine -->
+<line></line>
+<rect></rect>
+<text>QueryEngine</text>
+<text>submit_message → run_query (핵심 루프)</text>
+<!-- Down to outputs -->
+<line></line>
+<line></line>
+<line></line>
+<rect></rect>
+<text>CLI (-p 모드)</text>
+<text>text | json | stream-json</text>
+<rect></rect>
+<text>React TUI</text>
+<text>OHJSON: 프로토콜</text>
+<rect></rect>
+<text>ohmo Gateway</text>
+<text>Telegram/Slack/Discord</text>
+</svg>

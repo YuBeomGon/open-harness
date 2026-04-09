@@ -1,0 +1,38 @@
+<svg>
+<!-- Layers stacked -->
+<rect></rect>
+<text>Layer 1 — Base System Prompt</text>
+<text>에이전트 행동 원칙, 도구 사용 규칙, 톤, 안전 코딩 지침</text>
+<text>+ Environment (OS, shell, cwd, git branch, date, python ver)</text>
+<rect></rect>
+<text>Layer 2 — Session Settings</text>
+<text>Fast mode 여부, Effort 레벨, Passes 수 → 모델의 깊이/반복 조절</text>
+<rect></rect>
+<text>Layer 3 — Available Skills</text>
+<text>번들 + 사용자 + 플러그인 스킬 이름과 설명 목록</text>
+<text>&quot;다음 스킬이 있습니다: commit, review, debug, plan, ...&quot; → 모델이 skill() 도구로 로딩</text>
+<rect></rect>
+<text>Layer 4 — CLAUDE.md (프로젝트 인스트럭션)</text>
+<text>cwd → 상위 디렉토리로 올라가며 CLAUDE.md, .claude/rules/*.md 탐색</text>
+<text>파일당 최대 12,000자. &quot;이 프로젝트에서는 이렇게 해라&quot; 커스텀 지침</text>
+<rect></rect>
+<text>Layer 5 — Issue / PR Context</text>
+<text>현재 작업 중인 이슈 내용, PR 코멘트 (있으면)</text>
+<rect></rect>
+<text>Layer 6 — MEMORY.md Index</text>
+<text>프로젝트별 영속 메모리 엔트리포인트 (최대 200줄)</text>
+<text>&quot;이전 세션에서 이런 것들을 기억해뒀다&quot;</text>
+<rect></rect>
+<text>Layer 7 — Relevant Memories</text>
+<text>사용자의 최신 입력과 관련된 메모리 파일 검색 (max 5개)</text>
+<text>frontmatter 가중치 2×, body 1×, Han character tokenizer 지원</text>
+<!-- Arrow & label -->
+<line></line>
+<rect></rect>
+<text>&quot;\n\n&quot;.join(sections) → API 전송</text>
+<!-- Size indicator -->
+<text>컨텍스트 윈도우 200K</text>
+<rect></rect>
+<rect></rect>
+<text>사용 중</text>
+</svg>

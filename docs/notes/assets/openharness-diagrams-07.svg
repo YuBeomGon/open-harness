@@ -1,0 +1,43 @@
+<svg>
+<defs>
+<marker><path></path></marker>
+<marker><path></path></marker>
+</defs>
+<!-- Token check -->
+<rect></rect>
+<text>토큰 추정 ≥ threshold (167K)?</text>
+<text>len(text)//4 × 4/3 패딩</text>
+<!-- NO -->
+<line></line>
+<text>NO</text>
+<rect></rect>
+<text>그냥 진행</text>
+<!-- YES -->
+<line></line>
+<text>YES</text>
+<!-- Microcompact -->
+<rect></rect>
+<text>1단계: Microcompact (무료)</text>
+<text>오래된 tool result content → &quot;[Old tool result content cleared]&quot;</text>
+<text>대상: read_file, bash, grep, glob, web_search, web_fetch, edit_file, write_file</text>
+<text>최근 5개 보존, 나머지 클리어. LLM 호출 없음 → 토큰 0 소비</text>
+<line></line>
+<!-- Check again -->
+<polygon></polygon>
+<text>아직 초과?</text>
+<line></line>
+<text>NO → 충분!</text>
+<line></line>
+<text>YES</text>
+<!-- Full Compact -->
+<rect></rect>
+<text>2단계: Full Compact (LLM 요약)</text>
+<text>older messages → LLM에 요약 요청 → 구조화된 summary로 교체</text>
+<text>preserve_recent=6 (최근 6개 메시지는 원본 그대로 보존)</text>
+<text>&quot;도구 쓰지 말고 텍스트로만 답해&quot; + &lt;analysis&gt; + &lt;summary&gt; 9개 섹션 요청</text>
+<text>비용: API 호출 1회 (max_tokens=20,000)</text>
+<line></line>
+<!-- Result -->
+<rect></rect>
+<text>[summary_msg, ...최근6개] → 새 messages</text>
+</svg>
