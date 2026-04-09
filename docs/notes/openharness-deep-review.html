@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpenHarness Deep Code Review</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&family=Fraunces:opsz,wght@9..144,700;9..144,800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#08090d;--bg2:#0c0e14;--sf:#12151e;--sf2:#181c28;--sf3:#1f2536;
+  --bd:#272e42;--bd2:#343d56;--tx:#bfc6d8;--tb:#dfe4f0;--td:#5a6480;
+  --g:#34d399;--gd:rgba(52,211,153,.10);--b:#60a5fa;--bd3:rgba(96,165,250,.10);
+  --o:#fb923c;--od:rgba(251,146,60,.08);--p:#a78bfa;--pd:rgba(167,139,250,.08);
+  --r:#f87171;--rd:rgba(248,113,113,.08);--y:#fbbf24;--yd:rgba(251,191,36,.08);
+  --code:#0a0c12;--toc:260px;--rad:10px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;font-size:14.5px;scroll-padding-top:20px}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--tx);line-height:1.8;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:var(--bd);border-radius:99px}
+
+/* toc */
+.toc{position:fixed;top:0;left:0;width:var(--toc);height:100vh;background:var(--bg2);border-right:1px solid var(--bd);overflow-y:auto;z-index:100;padding:24px 0 40px}
+.toc-hd{text-align:center;padding:0 16px 20px;border-bottom:1px solid var(--bd);margin-bottom:12px}
+.toc-hd h2{font-family:'Fraunces',serif;font-size:1.3rem;color:var(--g)}
+.toc-hd .s{font-size:.6rem;color:var(--td);letter-spacing:2px;text-transform:uppercase}
+.toc a{display:block;padding:4px 18px 4px 22px;font-size:.74rem;color:var(--td);text-decoration:none;border-left:2px solid transparent;transition:.15s}
+.toc a:hover{color:var(--g);border-left-color:var(--g);background:var(--gd)}
+.toc .g{color:var(--tb);font-weight:700;font-size:.6rem;letter-spacing:2px;text-transform:uppercase;margin-top:16px;pointer-events:none}
+
+/* main */
+main{margin-left:var(--toc);max-width:860px;padding:40px 48px 120px}
+
+/* hero */
+.hero{padding:32px 0 40px;border-bottom:1px solid var(--bd);margin-bottom:48px;text-align:center}
+.hero .chip{display:inline-block;font-size:.6rem;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:var(--g);background:var(--gd);padding:3px 14px;border-radius:99px;margin-bottom:14px}
+.hero h1{font-family:'Fraunces',serif;font-size:2.4rem;color:#fff;margin-bottom:8px}
+.hero h1 em{color:var(--g);font-style:normal}
+.hero p{color:var(--td);font-size:.95rem;font-weight:300;max-width:560px;margin:0 auto}
+
+/* sections */
+section{margin-bottom:52px}
+.sh{font-family:'Fraunces',serif;font-size:1.5rem;color:#fff;padding-bottom:8px;border-bottom:2px solid var(--bd);margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.sn{font-family:'IBM Plex Mono',monospace;font-size:.7rem;font-weight:600;color:var(--g);background:var(--gd);padding:2px 10px;border-radius:4px}
+h3{font-size:1.05rem;font-weight:600;color:var(--tb);margin:26px 0 8px}
+h4{font-size:.92rem;font-weight:600;color:var(--tb);margin:18px 0 6px}
+p{margin-bottom:11px}
+strong{color:var(--tb)}
+
+/* code */
+pre{background:var(--code);border:1px solid var(--bd);border-radius:var(--rad);padding:16px 20px;overflow-x:auto;margin:10px 0 14px;font-family:'IBM Plex Mono',monospace;font-size:.76rem;line-height:1.8;color:#a0aac0;position:relative}
+pre[data-f]::before{content:attr(data-f);position:absolute;top:5px;right:10px;font-size:.55rem;color:var(--td);letter-spacing:1px;text-transform:uppercase;background:var(--sf);padding:1px 8px;border-radius:4px}
+code{font-family:'IBM Plex Mono',monospace;font-size:.82em;background:var(--sf2);padding:1px 5px;border-radius:3px;color:var(--g)}
+pre code{background:none;padding:0;color:inherit}
+.kw{color:#c792ea}.st{color:#c3e88d}.cm{color:#546e7a;font-style:italic}.fn{color:#82aaff}.nb{color:#f78c6c}.dc{color:#ffcb6b}.tp{color:#f07178}.op{color:#89ddff}
+
+/* callout boxes */
+.box{border-radius:var(--rad);padding:14px 18px;margin:12px 0;font-size:.85rem;border-left:3px solid}
+.box.g{background:var(--gd);border-color:var(--g)}
+.box.b{background:var(--bd3);border-color:var(--b)}
+.box.o{background:var(--od);border-color:var(--o)}
+.box.r{background:var(--rd);border-color:var(--r)}
+.box.p{background:var(--pd);border-color:var(--p)}
+.box.y{background:var(--yd);border-color:var(--y)}
+
+/* tables */
+.tw{overflow-x:auto;margin:10px 0 14px;border:1px solid var(--bd);border-radius:var(--rad)}
+table{width:100%;border-collapse:collapse;font-size:.8rem}
+thead{background:var(--sf2)}
+th{text-align:left;padding:8px 14px;font-weight:600;font-size:.68rem;letter-spacing:.5px;text-transform:uppercase;color:var(--tb);border-bottom:1px solid var(--bd)}
+td{padding:8px 14px;border-bottom:1px solid var(--bd);vertical-align:top}
+tr:last-child td{border-bottom:none}
+
+/* tree */
+.tree{background:var(--code);border:1px solid var(--bd);border-radius:var(--rad);padding:14px 20px;font-family:'IBM Plex Mono',monospace;font-size:.72rem;line-height:1.9;color:#687090;margin:10px 0 14px}
+.tree .d{color:var(--b);font-weight:600}.tree .c{color:var(--td);margin-left:6px}
+
+/* flow */
+.pipe{display:flex;align-items:stretch;gap:0;margin:16px 0;overflow-x:auto;padding:8px 0}
+.pipe-s{background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:10px 14px;min-width:110px;flex-shrink:0;display:flex;flex-direction:column;justify-content:center}
+.pipe-s .l{font-size:.58rem;color:var(--td);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px}
+.pipe-s .v{font-size:.76rem;font-weight:600;color:#fff}
+.pipe-s .d{font-size:.66rem;color:var(--td);margin-top:3px;line-height:1.35}
+.pipe-a{color:var(--g);font-size:1rem;display:flex;align-items:center;padding:0 3px;flex-shrink:0}
+
+/* lists */
+ul,ol{padding-left:20px;margin:6px 0 12px}
+li{margin-bottom:3px;font-size:.88rem}li::marker{color:var(--g)}
+
+/* annotation highlight */
+.hl{background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);border-radius:6px;padding:12px 16px;margin:10px 0;font-size:.84rem}
+.ann{display:inline-block;font-size:.65rem;font-weight:600;color:var(--bg);background:var(--g);padding:1px 8px;border-radius:3px;margin-right:6px;vertical-align:middle}
+.ann.b{background:var(--b)}.ann.o{background:var(--o)}.ann.r{background:var(--r)}.ann.p{background:var(--p)}.ann.y{background:var(--y)}
+
+footer{text-align:center;padding:32px 0;border-top:1px solid var(--bd);color:var(--td);font-size:.72rem}
+
+@media(max-width:960px){.toc{display:none}main{margin-left:0;padding:20px 14px 60px}.hero h1{font-size:1.8rem}}
+</style>
+</head>
+<body>
+
+<nav class="toc">
+<div class="toc-hd"><h2>oh</h2><span class="s">Deep Code Review</span></div>
+<a class="g">Agent Loop Pipeline</a>
+<a href="#overview">전체 실행 흐름</a>
+<a href="#query-engine">QueryEngine 클래스</a>
+<a href="#run-query">run_query — 핵심 루프</a>
+<a href="#execute-tool">_execute_tool_call 상세</a>
+<a href="#parallel">병렬 vs 순차 실행</a>
+<a class="g">메시지 모델</a>
+<a href="#content-blocks">ContentBlock 타입 시스템</a>
+<a href="#message-serial">직렬화 & API 변환</a>
+<a class="g">API 추상화 계층</a>
+<a href="#protocol">Protocol 패턴</a>
+<a href="#anthropic-client">AnthropicApiClient</a>
+<a href="#openai-client">OpenAI 호환 클라이언트</a>
+<a href="#retry">Retry 전략</a>
+<a class="g">권한 시스템</a>
+<a href="#perm-chain">평가 체인</a>
+<a href="#sensitive">센시티브 경로 방어</a>
+<a href="#path-resolve">경로 해석 로직</a>
+<a class="g">Hook 시스템</a>
+<a href="#hook-types">4가지 Hook 타입</a>
+<a href="#hook-exec">HookExecutor 실행 흐름</a>
+<a href="#hook-security">보안: shell-escape</a>
+<a class="g">컨텍스트 관리</a>
+<a href="#compact-overview">Auto-Compact 파이프라인</a>
+<a href="#microcompact">Microcompact</a>
+<a href="#full-compact">Full Compact (LLM 요약)</a>
+<a href="#token-est">토큰 추정</a>
+<a class="g">시스템 프롬프트 조립</a>
+<a href="#prompt-assembly">build_runtime_system_prompt</a>
+<a href="#claudemd">CLAUDE.md 탐색</a>
+<a href="#memory-inject">메모리 주입</a>
+<a class="g">Skills & Plugin</a>
+<a href="#skill-load">스킬 로딩 체인</a>
+<a href="#plugin-compat">플러그인 호환성</a>
+<a class="g">Memory 시스템</a>
+<a href="#mem-path">경로 설계</a>
+<a href="#mem-search">검색 스코어링</a>
+<a class="g">Multi-Agent / Swarm</a>
+<a href="#swarm-arch">Swarm 아키텍처</a>
+<a href="#spawn-flow">에이전트 스폰 흐름</a>
+</nav>
+
+<main>
+
+<div class="hero">
+  <div class="chip">Source-Level Deep Dive</div>
+  <h1><em>OpenHarness</em> 코드 레벨 리뷰</h1>
+  <p>에이전트 파이프라인, 컨텍스트 관리, 권한/훅 시스템, Multi-Agent 아키텍처를 소스 코드 수준에서 분석합니다.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- 1. AGENT LOOP PIPELINE                             -->
+<!-- ═══════════════════════════════════════════════════ -->
+<section id="overview">
+<h2 class="sh"><span class="sn">01</span> Agent Loop Pipeline — 전체 실행 흐름</h2>
+
+<div class="pipe">
+  <div class="pipe-s"><div class="l">진입점</div><div class="v">submit_message</div><div class="d">사용자 텍스트 → messages에 추가</div></div>
+  <div class="pipe-a">→</div>
+  <div class="pipe-s"><div class="l">컨텍스트</div><div class="v">QueryContext</div><div class="d">api, tools, perms, hooks 번들</div></div>
+  <div class="pipe-a">→</div>
+  <div class="pipe-s"><div class="l">매 턴 시작</div><div class="v">auto_compact</div><div class="d">토큰 체크 → micro/full</div></div>
+  <div class="pipe-a">→</div>
+  <div class="pipe-s"><div class="l">API 호출</div><div class="v">stream_message</div><div class="d">스트리밍 + retry</div></div>
+  <div class="pipe-a">→</div>
+  <div class="pipe-s"><div class="l">분기</div><div class="v">stop_reason</div><div class="d">tool_use? → 계속<br>end_turn → 종료</div></div>
+  <div class="pipe-a">→</div>
+  <div class="pipe-s"><div class="l">도구 실행</div><div class="v">_execute_tool_call</div><div class="d">PreHook → Perm → Exec → PostHook</div></div>
+  <div class="pipe-a">↩</div>
+</div>
+
+<div class="box g"><strong>핵심 설계:</strong> 모델이 <code>stop_reason="tool_use"</code>를 반환하는 한 루프를 계속합니다. <code>max_turns</code> (기본 200, QueryEngine 레벨에서는 8)으로 무한 루프를 방지합니다.</div>
+</section>
+
+<!-- QueryEngine -->
+<section id="query-engine">
+<h3>QueryEngine — 세션 소유자</h3>
+<p><code>engine/query_engine.py</code>는 대화 히스토리와 비용 추적을 소유하며, <code>run_query</code>에 위임합니다.</p>
+
+<pre data-f="query_engine.py"><code><span class="kw">class</span> <span class="dc">QueryEngine</span>:
+    <span class="cm">"""대화 히스토리 + CostTracker 소유. run_query에 실행 위임."""</span>
+    
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, *,
+        api_client: <span class="tp">SupportsStreamingMessages</span>,  <span class="cm"># Protocol 기반 — DI 가능</span>
+        tool_registry: <span class="tp">ToolRegistry</span>,
+        permission_checker: <span class="tp">PermissionChecker</span>,
+        model: str,  system_prompt: str,
+        max_tokens: int = <span class="nb">4096</span>,
+        max_turns: int | None = <span class="nb">8</span>,  <span class="cm"># ← QueryContext에서는 200</span>
+        hook_executor: <span class="tp">HookExecutor</span> | None = None,
+    ):
+        self._messages: list[<span class="tp">ConversationMessage</span>] = []
+        self._cost_tracker = <span class="fn">CostTracker</span>()
+    
+    <span class="kw">async def</span> <span class="fn">submit_message</span>(self, prompt: str) -> <span class="tp">AsyncIterator</span>[<span class="tp">StreamEvent</span>]:
+        self._messages.<span class="fn">append</span>(ConversationMessage.<span class="fn">from_user_text</span>(prompt))
+        context = <span class="fn">QueryContext</span>(...)  <span class="cm"># 모든 의존성을 번들로 전달</span>
+        <span class="kw">async for</span> event, usage <span class="kw">in</span> <span class="fn">run_query</span>(context, self._messages):
+            <span class="kw">if</span> usage: self._cost_tracker.<span class="fn">add</span>(usage)
+            <span class="kw">yield</span> event</code></pre>
+
+<div class="hl"><span class="ann">설계 포인트</span> <code>messages</code> 리스트는 <code>run_query</code>에 참조로 전달됩니다. <code>run_query</code> 내부에서 직접 append하므로, QueryEngine이 별도로 동기화할 필요가 없습니다. Auto-compact도 이 리스트를 직접 변환합니다.</div>
+
+<h4>continue_pending — 중단된 도구 루프 재개</h4>
+<pre data-f="query_engine.py"><code><span class="kw">def</span> <span class="fn">has_pending_continuation</span>(self) -> bool:
+    <span class="cm"># 마지막 메시지가 user role + ToolResultBlock이고</span>
+    <span class="cm"># 그 직전 assistant 메시지에 tool_uses가 있으면 True</span>
+
+<span class="kw">async def</span> <span class="fn">continue_pending</span>(self, *, max_turns=None):
+    <span class="cm"># 새 user 메시지 없이 run_query 재진입</span>
+    <span class="cm"># 세션 복원(resume) 시 사용</span></code></pre>
+</section>
+
+<!-- run_query -->
+<section id="run-query">
+<h3>run_query — 핵심 에이전트 루프</h3>
+<p><code>engine/query.py</code> — 전체 에이전트의 실질적인 심장부입니다. async generator로 구현되어 모든 이벤트를 yield합니다.</p>
+
+<pre data-f="query.py ── 전체 구조"><code><span class="kw">async def</span> <span class="fn">run_query</span>(context: <span class="tp">QueryContext</span>, messages: list) -> <span class="tp">AsyncIterator</span>[...]:
+    compact_state = <span class="fn">AutoCompactState</span>()
+    turn_count = <span class="nb">0</span>
+
+    <span class="kw">while</span> context.max_turns <span class="kw">is</span> None <span class="kw">or</span> turn_count < context.max_turns:
+        turn_count += <span class="nb">1</span>
+
+        <span class="cm"># ┌─── PHASE 1: Auto-Compact ───────────────────────┐</span>
+        messages, was_compacted = <span class="kw">await</span> <span class="fn">auto_compact_if_needed</span>(
+            messages, api_client=..., model=..., state=compact_state)
+        <span class="cm"># └──────────────────────────────────────────────────┘</span>
+
+        <span class="cm"># ┌─── PHASE 2: API Stream ─────────────────────────┐</span>
+        <span class="kw">try</span>:
+            <span class="kw">async for</span> event <span class="kw">in</span> context.api_client.<span class="fn">stream_message</span>(
+                <span class="fn">ApiMessageRequest</span>(
+                    model=..., messages=messages,
+                    system_prompt=..., max_tokens=...,
+                    tools=context.tool_registry.<span class="fn">to_api_schema</span>(),  <span class="cm"># 전체 도구 스키마</span>
+                )
+            ):
+                <span class="kw">if</span> isinstance(event, ApiTextDeltaEvent):
+                    <span class="kw">yield</span> <span class="fn">AssistantTextDelta</span>(...), None  <span class="cm"># 스트리밍 텍스트</span>
+                <span class="kw">elif</span> isinstance(event, ApiRetryEvent):
+                    <span class="kw">yield</span> <span class="fn">StatusEvent</span>(...), None          <span class="cm"># 재시도 알림</span>
+                <span class="kw">elif</span> isinstance(event, ApiMessageCompleteEvent):
+                    final_message = event.message
+                    usage = event.usage
+        <span class="kw">except</span> Exception <span class="kw">as</span> exc:
+            <span class="cm"># 네트워크/API 오류 → ErrorEvent yield 후 return</span>
+        <span class="cm"># └──────────────────────────────────────────────────┘</span>
+
+        messages.<span class="fn">append</span>(final_message)
+        <span class="kw">yield</span> <span class="fn">AssistantTurnComplete</span>(message=final_message, usage=usage), usage
+
+        <span class="cm"># ┌─── PHASE 3: 분기 ────────────────────────────────┐</span>
+        <span class="kw">if not</span> final_message.tool_uses:
+            <span class="kw">return</span>  <span class="cm"># 모델이 도구 없이 응답 → 루프 종료</span>
+        <span class="cm"># └──────────────────────────────────────────────────┘</span>
+
+        <span class="cm"># ┌─── PHASE 4: Tool Execution ─────────────────────┐</span>
+        <span class="cm"># (단일이면 순차, 복수면 asyncio.gather로 병렬)</span>
+        <span class="cm"># └──────────────────────────────────────────────────┘</span>
+
+        messages.<span class="fn">append</span>(<span class="fn">ConversationMessage</span>(role=<span class="st">"user"</span>, content=tool_results))
+        <span class="cm"># ↩ while 루프 상단으로 → 다음 턴</span>
+
+    <span class="kw">raise</span> <span class="fn">MaxTurnsExceeded</span>(context.max_turns)</code></pre>
+</section>
+
+<!-- _execute_tool_call -->
+<section id="execute-tool">
+<h3>_execute_tool_call — 도구 실행의 전체 체인</h3>
+<p>하나의 도구 호출이 거치는 전체 파이프라인입니다:</p>
+
+<pre data-f="query.py"><code><span class="kw">async def</span> <span class="fn">_execute_tool_call</span>(context, tool_name, tool_use_id, tool_input):
+
+    <span class="cm"># ① PreToolUse Hook</span>
+    <span class="kw">if</span> context.hook_executor:
+        pre_hooks = <span class="kw">await</span> hook_executor.<span class="fn">execute</span>(HookEvent.PRE_TOOL_USE, {
+            <span class="st">"tool_name"</span>: tool_name,
+            <span class="st">"tool_input"</span>: tool_input,
+        })
+        <span class="kw">if</span> pre_hooks.blocked:
+            <span class="kw">return</span> <span class="fn">ToolResultBlock</span>(..., is_error=True)  <span class="cm"># 훅이 차단</span>
+
+    <span class="cm"># ② Tool Registry Lookup</span>
+    tool = context.tool_registry.<span class="fn">get</span>(tool_name)
+    <span class="kw">if</span> tool <span class="kw">is</span> None:
+        <span class="kw">return</span> <span class="fn">ToolResultBlock</span>(content=<span class="st">f"Unknown tool: {tool_name}"</span>, is_error=True)
+
+    <span class="cm"># ③ Pydantic Input Validation</span>
+    <span class="kw">try</span>:
+        parsed_input = tool.input_model.<span class="fn">model_validate</span>(tool_input)
+    <span class="kw">except</span> Exception:
+        <span class="kw">return</span> <span class="fn">ToolResultBlock</span>(..., is_error=True)  <span class="cm"># 입력 검증 실패</span>
+
+    <span class="cm"># ④ Permission Evaluation</span>
+    _file_path = <span class="fn">_resolve_permission_file_path</span>(cwd, tool_input, parsed_input)
+    _command = <span class="fn">_extract_permission_command</span>(tool_input, parsed_input)
+    decision = context.permission_checker.<span class="fn">evaluate</span>(
+        tool_name, is_read_only=tool.<span class="fn">is_read_only</span>(parsed_input),
+        file_path=_file_path, command=_command)
+
+    <span class="kw">if not</span> decision.allowed:
+        <span class="kw">if</span> decision.requires_confirmation <span class="kw">and</span> permission_prompt:
+            confirmed = <span class="kw">await</span> <span class="fn">permission_prompt</span>(tool_name, decision.reason)
+            <span class="kw">if not</span> confirmed: <span class="kw">return</span> ...  <span class="cm"># 사용자 거부</span>
+        <span class="kw">else</span>: <span class="kw">return</span> ...  <span class="cm"># 무조건 거부</span>
+
+    <span class="cm"># ⑤ Tool Execution (with timing)</span>
+    t0 = time.<span class="fn">monotonic</span>()
+    result = <span class="kw">await</span> tool.<span class="fn">execute</span>(parsed_input, <span class="fn">ToolExecutionContext</span>(
+        cwd=context.cwd,
+        metadata={<span class="st">"tool_registry"</span>: ..., <span class="st">"ask_user_prompt"</span>: ...}))
+    elapsed = time.<span class="fn">monotonic</span>() - t0
+
+    <span class="cm"># ⑥ PostToolUse Hook</span>
+    <span class="kw">if</span> context.hook_executor:
+        <span class="kw">await</span> hook_executor.<span class="fn">execute</span>(HookEvent.POST_TOOL_USE, {
+            <span class="st">"tool_name"</span>: ..., <span class="st">"tool_output"</span>: ..., <span class="st">"tool_is_error"</span>: ...})</code></pre>
+
+<div class="hl"><span class="ann">6단계 체인</span> PreHook → Registry Lookup → Pydantic Validate → Permission Check → Execute → PostHook. 어느 단계에서든 실패하면 <code>ToolResultBlock(is_error=True)</code>를 반환하여 모델에게 오류를 알립니다.</div>
+</section>
+
+<!-- Parallel -->
+<section id="parallel">
+<h3>병렬 vs 순차 도구 실행</h3>
+<pre data-f="query.py"><code><span class="cm"># 단일 도구: 즉시 이벤트 스트리밍</span>
+<span class="kw">if</span> len(tool_calls) == <span class="nb">1</span>:
+    tc = tool_calls[<span class="nb">0</span>]
+    <span class="kw">yield</span> <span class="fn">ToolExecutionStarted</span>(...), None
+    result = <span class="kw">await</span> <span class="fn">_execute_tool_call</span>(context, tc.name, tc.id, tc.input)
+    <span class="kw">yield</span> <span class="fn">ToolExecutionCompleted</span>(...), None
+    tool_results = [result]
+
+<span class="cm"># 복수 도구: asyncio.gather로 동시 실행</span>
+<span class="kw">else</span>:
+    <span class="kw">for</span> tc <span class="kw">in</span> tool_calls:
+        <span class="kw">yield</span> <span class="fn">ToolExecutionStarted</span>(...), None  <span class="cm"># 시작 이벤트 먼저 전부 발행</span>
+
+    results = <span class="kw">await</span> asyncio.<span class="fn">gather</span>(*[<span class="fn">_run</span>(tc) <span class="kw">for</span> tc <span class="kw">in</span> tool_calls])
+    
+    <span class="kw">for</span> tc, result <span class="kw">in</span> zip(tool_calls, results):
+        <span class="kw">yield</span> <span class="fn">ToolExecutionCompleted</span>(...), None  <span class="cm"># 완료 이벤트 일괄 발행</span></code></pre>
+<div class="box b"><strong>설계 의도:</strong> 모델이 독립적인 도구 여러 개를 한 번에 호출하면 (예: 파일 3개 동시 읽기) 대기 시간을 줄입니다. 단일 호출 시에는 Started → Completed 사이에 실시간 피드백이 가능합니다.</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- 2. MESSAGE MODEL                                    -->
+<!-- ═══════════════════════════════════════════════════ -->
+<section id="content-blocks">
+<h2 class="sh"><span class="sn">02</span> 메시지 모델 — ContentBlock 타입 시스템</h2>
+
+<pre data-f="messages.py"><code><span class="cm"># Pydantic discriminated union — type 필드로 자동 분기</span>
+ContentBlock = Annotated[
+    <span class="tp">TextBlock</span> | <span class="tp">ToolUseBlock</span> | <span class="tp">ToolResultBlock</span>,
+    Field(discriminator=<span class="st">"type"</span>)
+]
+
+<span class="kw">class</span> <span class="dc">TextBlock</span>(<span class="tp">BaseModel</span>):
+    type: Literal[<span class="st">"text"</span>] = <span class="st">"text"</span>
+    text: str
+
+<span class="kw">class</span> <span class="dc">ToolUseBlock</span>(<span class="tp">BaseModel</span>):
+    type: Literal[<span class="st">"tool_use"</span>] = <span class="st">"tool_use"</span>
+    id: str = Field(default_factory=<span class="kw">lambda</span>: <span class="st">f"toolu_{uuid4().hex}"</span>)
+    name: str
+    input: dict[str, Any]
+
+<span class="kw">class</span> <span class="dc">ToolResultBlock</span>(<span class="tp">BaseModel</span>):
+    type: Literal[<span class="st">"tool_result"</span>] = <span class="st">"tool_result"</span>
+    tool_use_id: str       <span class="cm"># ToolUseBlock.id와 매칭</span>
+    content: str
+    is_error: bool = False
+
+<span class="kw">class</span> <span class="dc">ConversationMessage</span>(<span class="tp">BaseModel</span>):
+    role: Literal[<span class="st">"user"</span>, <span class="st">"assistant"</span>]
+    content: list[ContentBlock]
+    
+    <span class="cm"># 편의 프로퍼티</span>
+    <span class="kw">@property</span>
+    <span class="kw">def</span> <span class="fn">tool_uses</span>(self) -> list[ToolUseBlock]: ...  <span class="cm"># assistant msg에서 도구 호출 추출</span>
+    <span class="kw">@property</span>
+    <span class="kw">def</span> <span class="fn">text</span>(self) -> str: ...                     <span class="cm"># 텍스트 블록만 연결</span></code></pre>
+
+<div class="hl"><span class="ann">패턴</span> assistant 메시지 = TextBlock + ToolUseBlock 혼합. 도구 결과는 role="user" 메시지에 ToolResultBlock으로 담깁니다. 이 구조가 Anthropic Messages API의 turn-based 모델과 정확히 대응합니다.</div>
+
+<h3 id="message-serial">직렬화 — API 와이어 포맷 변환</h3>
+<pre data-f="messages.py"><code><span class="kw">def</span> <span class="fn">serialize_content_block</span>(block: ContentBlock) -> dict:
+    <span class="cm"># TextBlock → {"type": "text", "text": "..."}</span>
+    <span class="cm"># ToolUseBlock → {"type": "tool_use", "id": ..., "name": ..., "input": ...}</span>
+    <span class="cm"># ToolResultBlock → {"type": "tool_result", "tool_use_id": ..., "content": ...}</span>
+
+<span class="kw">def</span> <span class="fn">assistant_message_from_api</span>(raw_message) -> ConversationMessage:
+    <span class="cm"># Anthropic SDK 객체 → 내부 ConversationMessage로 변환</span>
+    <span class="cm"># getattr 기반으로 SDK 버전 변경에 견고하게 대응</span></code></pre>
+
+<div class="box o"><strong>OpenAI 호환 변환</strong>은 <code>openai_client.py</code>의 <code>_convert_messages_to_openai</code>에서 처리됩니다. system prompt → role="system" 메시지, ToolResultBlock → role="tool" 메시지, ToolUseBlock → tool_calls 필드로 변환합니다.</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- 3. API ABSTRACTION                                  -->
+<!-- ═══════════════════════════════════════════════════ -->
+<section id="protocol">
+<h2 class="sh"><span class="sn">03</span> API 추상화 계층</h2>
+
+<h3>Protocol 패턴 — 테스트 가능한 추상화</h3>
+<pre data-f="client.py"><code><span class="kw">class</span> <span class="dc">SupportsStreamingMessages</span>(<span class="tp">Protocol</span>):
+    <span class="cm">"""구조적 서브타이핑 — 상속 없이 duck typing으로 호환"""</span>
+    <span class="kw">async def</span> <span class="fn">stream_message</span>(self, request: <span class="tp">ApiMessageRequest</span>) -> <span class="tp">AsyncIterator</span>[<span class="tp">ApiStreamEvent</span>]: ...</code></pre>
+<p>이 Protocol을 만족하는 4개 구현체:</p>
+<div class="tw"><table>
+<thead><tr><th>클라이언트</th><th>파일</th><th>SDK</th><th>특이사항</th></tr></thead>
+<tbody>
+<tr><td><code>AnthropicApiClient</code></td><td>client.py</td><td>AsyncAnthropic</td><td>OAuth 지원, Claude Subscription bridge</td></tr>
+<tr><td><code>OpenAIApiClient</code></td><td>openai_client.py</td><td>AsyncOpenAI</td><td>메시지/도구 포맷 자동 변환, max_completion_tokens 분기</td></tr>
+<tr><td><code>CopilotApiClient</code></td><td>copilot_client.py</td><td>httpx</td><td>GitHub Device Flow OAuth</td></tr>
+<tr><td><code>CodexApiClient</code></td><td>codex_client.py</td><td>bridge</td><td>~/.codex/auth.json 크레덴셜</td></tr>
+</tbody>
+</table></div>
+
+<h3 id="anthropic-client">AnthropicApiClient — Retry 상세</h3>
+<pre data-f="client.py"><code>MAX_RETRIES = <span class="nb">3</span>; BASE_DELAY = <span class="nb">1.0</span>; MAX_DELAY = <span class="nb">30.0</span>
+RETRYABLE_STATUS_CODES = {<span class="nb">429</span>, <span class="nb">500</span>, <span class="nb">502</span>, <span class="nb">503</span>, <span class="nb">529</span>}
+
+<span class="kw">async def</span> <span class="fn">stream_message</span>(self, request):
+    <span class="kw">for</span> attempt <span class="kw">in</span> range(MAX_RETRIES + <span class="nb">1</span>):
+        <span class="kw">try</span>:
+            self.<span class="fn">_refresh_client_auth</span>()    <span class="cm"># OAuth 토큰 갱신 체크</span>
+            <span class="kw">async for</span> event <span class="kw">in</span> self.<span class="fn">_stream_once</span>(request):
+                <span class="kw">yield</span> event
+            <span class="kw">return</span>
+        <span class="kw">except</span> <span class="tp">OpenHarnessApiError</span>: <span class="kw">raise</span>  <span class="cm"># 인증 오류는 재시도 안 함</span>
+        <span class="kw">except</span> Exception <span class="kw">as</span> exc:
+            <span class="kw">if not</span> <span class="fn">_is_retryable</span>(exc): <span class="kw">raise</span>
+            delay = <span class="fn">_get_retry_delay</span>(attempt, exc)  <span class="cm"># 지수 백오프 + jitter</span>
+            <span class="kw">yield</span> <span class="fn">ApiRetryEvent</span>(...)  <span class="cm"># UI에 재시도 알림</span>
+            <span class="kw">await</span> asyncio.<span class="fn">sleep</span>(delay)</code></pre>
+
+<div id="retry" class="hl"><span class="ann">Retry 전략</span> <code>_get_retry_delay</code>: ① Retry-After 헤더 존재 시 해당 값 사용 → ② 없으면 <code>min(BASE_DELAY × 2^attempt, 30s) + random(0, delay×0.25)</code>. Jitter로 thundering herd 방지.</div>
+
+<h3 id="openai-client">OpenAI 호환 — 포맷 변환의 핵심</h3>
+<pre data-f="openai_client.py"><code><span class="kw">def</span> <span class="fn">_token_limit_param_for_model</span>(model, max_tokens):
+    <span class="cm"># GPT-5, o1, o3, o4 계열 → max_completion_tokens 사용</span>
+    <span class="cm"># 그 외 → max_tokens 사용</span>
+
+<span class="kw">def</span> <span class="fn">_convert_tools_to_openai</span>(tools):
+    <span class="cm"># Anthropic: {"name", "description", "input_schema"}</span>
+    <span class="cm"># → OpenAI: {"type": "function", "function": {"name", "description", "parameters"}}</span>
+
+<span class="kw">def</span> <span class="fn">_convert_messages_to_openai</span>(messages, system_prompt):
+    <span class="cm"># system_prompt → {"role": "system", "content": ...}  (Anthropic은 별도 파라미터)</span>
+    <span class="cm"># ToolUseBlock → assistant msg의 tool_calls 필드</span>
+    <span class="cm"># ToolResultBlock → {"role": "tool", "tool_call_id": ..., "content": ...}</span></code></pre>
+</section>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- 4. PERMISSIONS                                      -->
+<!-- ═══════════════════════════════════════════════════ -->
+<section id="perm-chain">
+<h2 class="sh"><span class="sn">04</span> 권한 시스템 — 평가 체인</h2>
+
+<pre data-f="checker.py ── evaluate() 로직"><code><span class="kw">def</span> <span class="fn">evaluate</span>(self, tool_name, *, is_read_only, file_path=None, command=None):
+
+    <span class="cm"># ① SENSITIVE_PATH_PATTERNS — 무조건 거부, 설정 불가</span>
+    <span class="kw">if</span> file_path:
+        <span class="kw">for</span> pattern <span class="kw">in</span> SENSITIVE_PATH_PATTERNS:
+            <span class="kw">if</span> fnmatch.<span class="fn">fnmatch</span>(file_path, pattern):
+                <span class="kw">return</span> <span class="fn">PermissionDecision</span>(allowed=False)
+
+    <span class="cm"># ② denied_tools 명시적 차단</span>
+    <span class="kw">if</span> tool_name <span class="kw">in</span> self._settings.denied_tools: <span class="kw">return</span> <span class="fn">Decision</span>(allowed=False)
+
+    <span class="cm"># ③ allowed_tools 명시적 허용</span>
+    <span class="kw">if</span> tool_name <span class="kw">in</span> self._settings.allowed_tools: <span class="kw">return</span> <span class="fn">Decision</span>(allowed=True)
+
+    <span class="cm"># ④ path_rules (fnmatch glob) — deny 규칙만 체크</span>
+    <span class="kw">for</span> rule <span class="kw">in</span> self._path_rules:
+        <span class="kw">if</span> fnmatch.<span class="fn">fnmatch</span>(file_path, rule.pattern) <span class="kw">and not</span> rule.allow:
+            <span class="kw">return</span> <span class="fn">Decision</span>(allowed=False)
+
+    <span class="cm"># ⑤ denied_commands (fnmatch)</span>
+    <span class="kw">for</span> pattern <span class="kw">in</span> denied_commands:
+        <span class="kw">if</span> fnmatch.<span class="fn">fnmatch</span>(command, pattern): <span class="kw">return</span> <span class="fn">Decision</span>(allowed=False)
+
+    <span class="cm"># ⑥ PermissionMode 분기</span>
+    <span class="kw">if</span> mode == FULL_AUTO:  <span class="kw">return</span> <span class="fn">Decision</span>(allowed=True)
+    <span class="kw">if</span> is_read_only:       <span class="kw">return</span> <span class="fn">Decision</span>(allowed=True)
+    <span class="kw">if</span> mode == PLAN:       <span class="kw">return</span> <span class="fn">Decision</span>(allowed=False)    <span class="cm"># 쓰기 완전 차단</span>
+    <span class="cm"># DEFAULT → requires_confirmation=True (사용자에게 물어봄)</span></code></pre>
+
+<div id="sensitive" class="box r"><strong>Defence-in-depth:</strong> <code>SENSITIVE_PATH_PATTERNS</code>는 하드코딩이며 사용자 설정이나 PermissionMode로 오버라이드할 수 없습니다. 프롬프트 인젝션으로 <code>.ssh/</code>, <code>.aws/credentials</code> 등에 접근하는 것을 원천 차단합니다.</div>
+
+<h3 id="path-resolve">경로 해석 로직</h3>
+<pre data-f="query.py"><code><span class="kw">def</span> <span class="fn">_resolve_permission_file_path</span>(cwd, raw_input, parsed_input):
+    <span class="cm"># raw_input dict에서 "file_path" 또는 "path" 키를 찾음</span>
+    <span class="cm"># → expanduser → 상대경로면 cwd 기준으로 resolve</span>
+    <span class="cm"># → 절대경로 문자열 반환</span>
+
+<span class="kw">def</span> <span class="fn">_extract_permission_command</span>(raw_input, parsed_input):
+    <span class="cm"># "command" 키에서 셸 커맨드 문자열 추출</span></code></pre>
+<div class="hl"><span class="ann">설계</span> Pydantic 검증 <strong>전</strong>에 raw_input과 parsed_input 양쪽에서 경로/커맨드를 추출합니다. 도구마다 file_path/path 키 이름이 다를 수 있어서 양쪽 모두 확인합니다.</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- 5. HOOKS                                            -->
+<!-- ═══════════════════════════════════════════════════ -->
+<section id="hook-types">
+<h2 class="sh"><span class="sn">05</span> Hook 시스템</h2>
+
+<h3>4가지 Hook 타입의 실행 메커니즘</h3>
+
+<div class="tw"><table>
+<thead><tr><th>타입</th><th>실행 방식</th><th>결과 판단</th><th>block_on_failure 기본값</th></tr></thead>
+<tbody>
+<tr><td><code>command</code></td><td>셸 서브프로세스 (<code>create_shell_subprocess</code>)</td><td>returncode == 0 → success</td><td>false</td></tr>
+<tr><td><code>http</code></td><td>httpx POST (JSON payload)</td><td>response.is_success</td><td>false</td></tr>
+<tr><td><code>prompt</code></td><td>LLM 호출 → JSON 응답 파싱</td><td><code>{"ok": true/false}</code></td><td>true</td></tr>
+<tr><td><code>agent</code></td><td>LLM 호출 (더 심화된 추론)</td><td>동일</td><td>true</td></tr>
+</tbody>
+</table></div>
+
+<h3 id="hook-exec">HookExecutor — 실행 흐름 상세</h3>
+<pre data-f="executor.py"><code><span class="kw">async def</span> <span class="fn">execute</span>(self, event: HookEvent, payload):
+    results = []
+    <span class="kw">for</span> hook <span class="kw">in</span> self._registry.<span class="fn">get</span>(event):
+        <span class="kw">if not</span> <span class="fn">_matches_hook</span>(hook, payload): <span class="kw">continue</span>
+        <span class="cm"># hook.type에 따라 적절한 실행기 호출</span>
+        results.<span class="fn">append</span>(<span class="kw">await</span> self._run_xxx_hook(hook, event, payload))
+    <span class="kw">return</span> <span class="fn">AggregatedHookResult</span>(results=results)
+    <span class="cm"># .blocked → any(r.blocked for r in results)</span>
+    <span class="cm"># .reason → 첫 번째 blocking reason</span></code></pre>
+
+<h4>Matcher 패턴</h4>
+<pre data-f="executor.py"><code><span class="kw">def</span> <span class="fn">_matches_hook</span>(hook, payload):
+    matcher = getattr(hook, <span class="st">"matcher"</span>, None)
+    <span class="kw">if not</span> matcher: <span class="kw">return</span> True  <span class="cm"># matcher 없으면 모든 도구에 적용</span>
+    subject = payload.get(<span class="st">"tool_name"</span>) <span class="kw">or</span> payload.get(<span class="st">"prompt"</span>) <span class="kw">or</span> ...
+    <span class="kw">return</span> fnmatch.<span class="fn">fnmatch</span>(subject, matcher)  <span class="cm"># e.g. "bash" or "edit_*"</span></code></pre>
+
+<h4>Prompt/Agent Hook의 LLM 판정</h4>
+<pre data-f="executor.py"><code><span class="cm"># 시스템 프롬프트: "Return strict JSON: {"ok": true} or {"ok": false, "reason": "..."}"</span>
+<span class="cm"># agent_mode=True이면 "Be more thorough" 추가</span>
+<span class="cm"># max_tokens=512로 짧게 제한</span>
+
+<span class="kw">def</span> <span class="fn">_parse_hook_json</span>(text):
+    <span class="cm"># JSON 파싱 시도 → 실패하면 "ok"/"true"/"yes" 문자열 체크</span>
+    <span class="cm"># 그것도 아니면 {"ok": False, "reason": text}</span></code></pre>
+
+<h3 id="hook-security">보안: $ARGUMENTS Shell Escape</h3>
+<pre data-f="executor.py"><code><span class="kw">def</span> <span class="fn">_inject_arguments</span>(template, payload, *, shell_escape=False):
+    serialized = json.<span class="fn">dumps</span>(payload, ensure_ascii=True)
+    <span class="kw">if</span> shell_escape:
+        serialized = shlex.<span class="fn">quote</span>(serialized)  <span class="cm"># ← command hook에만 적용</span>
+    <span class="kw">return</span> template.<span class="fn">replace</span>(<span class="st">"$ARGUMENTS"</span>, serialized)</code></pre>
+<div class="box r"><strong>CHANGELOG에서 수정된 취약점:</strong> 이전에는 <code>$ARGUMENTS</code>에 <code>$(…)</code>이나 backtick이 포함되면 shell injection이 가능했습니다. <code>shlex.quote()</code>로 감싸서 모든 메타문자를 이스케이프합니다. HTTP/Prompt hook에는 shell이 아니므로 escape 없이 raw JSON을 전달합니다.</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- 6. CONTEXT MANAGEMENT                               -->
+<!-- ═══════════════════════════════════════════════════ -->
+<section id="compact-overview">
+<h2 class="sh"><span class="sn">06</span> 컨텍스트 관리 — Auto-Compact 파이프라인</h2>
+
+<p>Claude Code의 compaction 시스템을 충실히 재구현한 <code>services/compact/__init__.py</code>입니다.</p>
+
+<div class="pipe">
+  <div class="pipe-s"><div class="l">매 턴</div><div class="v">should_autocompact</div><div class="d">토큰 추정 ≥ threshold?</div></div>
+  <div class="pipe-a">→</div>
+  <div class="pipe-s"><div class="l">1차</div><div class="v">microcompact</div><div class="d">오래된 tool result 클리어<br>비용: 0 (LLM 호출 없음)</div></div>
+  <div class="pipe-a">→</div>
+  <div class="pipe-s"><div class="l">충분?</div><div class="v">재측정</div><div class="d">threshold 미만이면 종료</div></div>
+  <div class="pipe-a">→</div>
+  <div class="pipe-s"><div class="l">2차</div><div class="v">compact_conversation</div><div class="d">LLM 요약 호출<br>비용: API 1회</div></div>
+  <div class="pipe-a">→</div>
+  <div class="pipe-s"><div class="l">결과</div><div class="v">summary + newer</div><div class="d">older → 요약 메시지로 교체</div></div>
+</div>
+
+<h4>Threshold 계산</h4>
+<pre data-f="compact/__init__.py"><code><span class="kw">def</span> <span class="fn">get_autocompact_threshold</span>(model):
+    context_window = <span class="fn">get_context_window</span>(model)  <span class="cm"># 기본 200,000</span>
+    reserved = min(MAX_OUTPUT_TOKENS_FOR_SUMMARY, <span class="nb">20_000</span>)
+    effective = context_window - reserved       <span class="cm"># 180,000</span>
+    <span class="kw">return</span> effective - AUTOCOMPACT_BUFFER_TOKENS  <span class="cm"># 180,000 - 13,000 = 167,000</span></code></pre>
+
+<h3 id="microcompact">Microcompact — 무료 토큰 절약</h3>
+<pre data-f="compact/__init__.py"><code>COMPACTABLE_TOOLS = frozenset({
+    <span class="st">"read_file"</span>, <span class="st">"bash"</span>, <span class="st">"grep"</span>, <span class="st">"glob"</span>,
+    <span class="st">"web_search"</span>, <span class="st">"web_fetch"</span>, <span class="st">"edit_file"</span>, <span class="st">"write_file"</span>})
+
+<span class="kw">def</span> <span class="fn">microcompact_messages</span>(messages, *, keep_recent=<span class="nb">5</span>):
+    <span class="cm"># 1. assistant 메시지에서 COMPACTABLE_TOOLS의 tool_use ID 수집</span>
+    <span class="cm"># 2. 최근 keep_recent개 제외, 나머지의 tool_result content를</span>
+    <span class="cm">#    "[Old tool result content cleared]"로 교체</span>
+    <span class="cm"># 3. messages를 in-place로 변환 (효율성)</span>
+    <span class="kw">return</span> messages, tokens_saved</code></pre>
+<div class="hl"><span class="ann">핵심</span> read_file 같은 큰 출력을 가진 도구의 오래된 결과를 지웁니다. 모델은 이미 그 내용을 처리했으므로, 최근 5개만 보존하면 충분합니다.</div>
+
+<h3 id="full-compact">Full Compact — LLM 요약</h3>
+<pre data-f="compact/__init__.py"><code><span class="kw">async def</span> <span class="fn">compact_conversation</span>(messages, *, api_client, model, preserve_recent=<span class="nb">6</span>):
+    <span class="cm"># Step 1: microcompact 먼저 실행</span>
+    messages, _ = <span class="fn">microcompact_messages</span>(messages)
+
+    <span class="cm"># Step 2: 분할</span>
+    older = messages[:-preserve_recent]  <span class="cm"># → 요약 대상</span>
+    newer = messages[-preserve_recent:]  <span class="cm"># → 그대로 보존</span>
+
+    <span class="cm"># Step 3: LLM에 compact prompt 전송 (도구 없이)</span>
+    <span class="cm"># "Respond with TEXT ONLY. Do NOT call any tools."</span>
+    <span class="cm"># → &lt;analysis&gt; 블록 + &lt;summary&gt; 블록 요청</span>
+    summary_text = <span class="kw">await</span> call_llm(older + [compact_prompt])
+
+    <span class="cm"># Step 4: 결과 조립</span>
+    <span class="cm"># format_compact_summary: &lt;analysis&gt; 제거, &lt;summary&gt; 추출</span>
+    <span class="cm"># build_compact_summary_message: 세션 연속성 안내 텍스트 추가</span>
+    <span class="kw">return</span> [summary_msg, *newer]</code></pre>
+
+<h4>Compact Prompt의 요약 섹션 (9개)</h4>
+<ol>
+  <li>Primary Request and Intent</li>
+  <li>Key Technical Concepts</li>
+  <li>Files and Code Sections (경로 + 라인 번호)</li>
+  <li>Errors and Fixes</li>
+  <li>Problem Solving (성공/실패한 접근)</li>
+  <li>All User Messages (원문 보존)</li>
+  <li>Pending Tasks (미완료 작업)</li>
+  <li>Current Work (마지막 작업 상태)</li>
+  <li>Optional Next Step</li>
+</ol>
+
+<div class="box y"><strong>AutoCompactState:</strong> 연속 실패 <code>MAX_CONSECUTIVE_AUTOCOMPACT_FAILURES=3</code>회 도달 시 auto-compact를 비활성화합니다. 무한 재시도로 토큰을 낭비하는 것을 방지합니다.</div>
+
+<h3 id="token-est">토큰 추정</h3>
+<pre data-f="token_estimation.py + compact/__init__.py"><code><span class="kw">def</span> <span class="fn">estimate_tokens</span>(text: str) -> int:
+    <span class="kw">return</span> max(<span class="nb">1</span>, (len(text) + <span class="nb">3</span>) // <span class="nb">4</span>)  <span class="cm"># 4문자 ≈ 1토큰 (거친 휴리스틱)</span>
+
+<span class="kw">def</span> <span class="fn">estimate_message_tokens</span>(messages):
+    total = sum(블록별 estimate_tokens)
+    <span class="kw">return</span> int(total * TOKEN_ESTIMATION_PADDING)  <span class="cm"># × 4/3 보수적 패딩</span></code></pre>
+<div class="hl"><span class="ann">트레이드오프</span> tiktoken 같은 정확한 토크나이저 대신 단순 문자 수 기반 추정을 사용합니다. 속도 우선 + 4/3 패딩으로 안전 마진 확보. 한글/CJK 문자에서는 실제보다 과소추정될 수 있습니다.</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- 7. SYSTEM PROMPT ASSEMBLY                           -->
+<!-- ═══════════════════════════════════════════════════ -->
+<section id="prompt-assembly">
+<h2 class="sh"><span class="sn">07</span> 시스템 프롬프트 조립</h2>
+
+<h3>build_runtime_system_prompt — 전체 조립 과정</h3>
+<pre data-f="context.py"><code><span class="kw">def</span> <span class="fn">build_runtime_system_prompt</span>(settings, *, cwd, latest_user_prompt, ...):
+    sections = []
+
+    <span class="cm"># ① Base prompt + Environment (OS, shell, cwd, git branch, date)</span>
+    sections.<span class="fn">append</span>(<span class="fn">build_system_prompt</span>(custom_prompt=settings.system_prompt, cwd=cwd))
+
+    <span class="cm"># ② Fast mode / Reasoning settings (effort, passes)</span>
+    <span class="kw">if</span> settings.fast_mode: sections.<span class="fn">append</span>(<span class="st">"# Session Mode\nFast mode..."</span>)
+    sections.<span class="fn">append</span>(<span class="st">f"# Reasoning Settings\n- Effort: {settings.effort}\n..."</span>)
+
+    <span class="cm"># ③ Available Skills 목록</span>
+    skills_section = <span class="fn">_build_skills_section</span>(cwd, ...)
+    <span class="kw">if</span> skills_section: sections.<span class="fn">append</span>(skills_section)
+
+    <span class="cm"># ④ CLAUDE.md (프로젝트 인스트럭션)</span>
+    claude_md = <span class="fn">load_claude_md_prompt</span>(cwd)
+    <span class="kw">if</span> claude_md: sections.<span class="fn">append</span>(claude_md)
+
+    <span class="cm"># ⑤ Issue Context / PR Comments (있으면)</span>
+    <span class="kw">for</span> title, path <span class="kw">in</span> [(<span class="st">"Issue Context"</span>, ...), (<span class="st">"PR Comments"</span>, ...)]:
+        <span class="kw">if</span> path.exists(): sections.<span class="fn">append</span>(f<span class="st">"# {title}\n```md\n{content[:12000]}\n```"</span>)
+
+    <span class="cm"># ⑥ MEMORY.md 엔트리포인트</span>
+    <span class="kw">if</span> settings.memory.enabled:
+        memory_section = <span class="fn">load_memory_prompt</span>(cwd, max_entrypoint_lines=<span class="nb">200</span>)
+        <span class="kw">if</span> memory_section: sections.<span class="fn">append</span>(memory_section)
+
+    <span class="cm"># ⑦ Relevant Memories (사용자 입력 기반 검색)</span>
+        <span class="kw">if</span> latest_user_prompt:
+            relevant = <span class="fn">find_relevant_memories</span>(latest_user_prompt, cwd, max_results=<span class="nb">5</span>)
+            <span class="cm"># 각 메모리 파일 content[:8000] 주입</span>
+
+    <span class="kw">return</span> <span class="st">"\n\n"</span>.<span class="fn">join</span>(sections)</code></pre>
+
+<div class="hl"><span class="ann">7개 레이어</span> Base + Env → Settings → Skills → CLAUDE.md → Issue/PR → Memory Index → Relevant Memories. 각 레이어가 독립적으로 존재/부재할 수 있으며, 모두 <code>\n\n</code>으로 결합됩니다.</div>
+
+<h3 id="claudemd">CLAUDE.md 탐색 — 프로젝트 인스트럭션</h3>
+<pre data-f="claudemd.py"><code><span class="kw">def</span> <span class="fn">discover_claude_md_files</span>(cwd):
+    current = Path(cwd).<span class="fn">resolve</span>()
+    <span class="kw">for</span> directory <span class="kw">in</span> [current, *current.parents]:
+        <span class="cm"># 우선순위:</span>
+        <span class="cm"># 1. {dir}/CLAUDE.md</span>
+        <span class="cm"># 2. {dir}/.claude/CLAUDE.md</span>
+        <span class="cm"># 3. {dir}/.claude/rules/*.md (정렬됨)</span>
+    <span class="kw">return</span> results  <span class="cm"># seen set으로 중복 제거</span>
+
+<span class="kw">def</span> <span class="fn">load_claude_md_prompt</span>(cwd, *, max_chars_per_file=<span class="nb">12000</span>):
+    <span class="cm"># 발견된 모든 파일을 "# Project Instructions" 섹션으로 주입</span>
+    <span class="cm"># 파일당 12,000자 초과 시 truncate</span></code></pre>
+
+<h3 id="memory-inject">메모리 주입 — 사용자 입력 기반 검색</h3>
+<pre data-f="context.py"><code><span class="cm"># MEMORY.md 엔트리포인트 (항상 주입)</span>
+<span class="st">"# Memory\n- Persistent memory directory: {path}\n## MEMORY.md\n```md\n{content}\n```"</span>
+
+<span class="cm"># Relevant Memories (사용자 최신 프롬프트와 관련된 파일만)</span>
+relevant = <span class="fn">find_relevant_memories</span>(latest_user_prompt, cwd, max_results=<span class="nb">5</span>)
+<span class="cm"># → "# Relevant Memories\n## {filename}\n```md\n{content[:8000]}\n```"</span></code></pre>
+</section>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- 8. SKILLS & PLUGINS                                 -->
+<!-- ═══════════════════════════════════════════════════ -->
+<section id="skill-load">
+<h2 class="sh"><span class="sn">08</span> Skills &amp; Plugin 시스템</h2>
+
+<h3>스킬 로딩 체인</h3>
+<pre data-f="skills/loader.py"><code><span class="kw">def</span> <span class="fn">load_skill_registry</span>(cwd, *, extra_skill_dirs, extra_plugin_roots):
+    registry = <span class="fn">SkillRegistry</span>()     <span class="cm"># dict[name → SkillDefinition]</span>
+
+    <span class="cm"># 1순위: 번들 스킬 (내장)</span>
+    <span class="kw">for</span> skill <span class="kw">in</span> <span class="fn">get_bundled_skills</span>(): registry.<span class="fn">register</span>(skill)
+
+    <span class="cm"># 2순위: 사용자 스킬 (~/.openharness/skills/*.md)</span>
+    <span class="kw">for</span> skill <span class="kw">in</span> <span class="fn">load_user_skills</span>(): registry.<span class="fn">register</span>(skill)
+
+    <span class="cm"># 3순위: extra_skill_dirs (ohmo 등에서 추가)</span>
+    <span class="kw">for</span> skill <span class="kw">in</span> <span class="fn">load_skills_from_dirs</span>(extra_skill_dirs): registry.<span class="fn">register</span>(skill)
+
+    <span class="cm"># 4순위: 활성 플러그인의 스킬</span>
+    <span class="kw">for</span> plugin <span class="kw">in</span> <span class="fn">load_plugins</span>(...):
+        <span class="kw">if</span> plugin.enabled:
+            <span class="kw">for</span> skill <span class="kw">in</span> plugin.skills: registry.<span class="fn">register</span>(skill)
+
+    <span class="kw">return</span> registry</code></pre>
+
+<h4>SkillDefinition — 데이터 모델</h4>
+<pre data-f="skills/types.py"><code><span class="dc">@dataclass</span>(frozen=True)
+<span class="kw">class</span> <span class="dc">SkillDefinition</span>:
+    name: str           <span class="cm"># YAML frontmatter의 name</span>
+    description: str    <span class="cm"># frontmatter의 description</span>
+    content: str        <span class="cm"># 전체 .md 파일 내용 (모델에 주입됨)</span>
+    source: str         <span class="cm"># "bundled" / "user" / "plugin"</span>
+    path: str | None</code></pre>
+
+<h4>SkillTool — 모델이 스킬을 요청하는 방법</h4>
+<pre data-f="tools/skill_tool.py"><code><span class="kw">class</span> <span class="dc">SkillTool</span>(<span class="tp">BaseTool</span>):
+    name = <span class="st">"skill"</span>
+    <span class="cm"># 시스템 프롬프트에 스킬 목록이 포함됨</span>
+    <span class="cm"># 모델이 "skill(name="commit")"을 호출하면</span>
+    <span class="cm"># → skill.content를 ToolResult로 반환</span>
+    <span class="cm"># → 모델이 그 내용을 읽고 작업 수행</span></code></pre>
+
+<h3 id="plugin-compat">플러그인 호환성 — claude-code 포맷</h3>
+<p>디렉토리 구조: <code>.openharness/plugins/{name}/.claude-plugin/plugin.json</code></p>
+<p>하위에 <code>commands/*.md</code> + <code>hooks/hooks.json</code> + <code>agents/*.md</code>. Hook은 <code>load_hook_registry</code>에서 settings의 hooks와 플러그인의 hooks를 합쳐서 HookRegistry에 등록합니다.</p>
+</section>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- 9. MEMORY                                           -->
+<!-- ═══════════════════════════════════════════════════ -->
+<section id="mem-path">
+<h2 class="sh"><span class="sn">09</span> Memory 시스템</h2>
+
+<h3>경로 설계</h3>
+<pre data-f="memory/paths.py"><code><span class="kw">def</span> <span class="fn">get_project_memory_dir</span>(cwd):
+    path = Path(cwd).<span class="fn">resolve</span>()
+    digest = <span class="fn">sha1</span>(str(path).<span class="fn">encode</span>()).<span class="fn">hexdigest</span>()[:<span class="nb">12</span>]
+    <span class="cm"># ~/.openharness/data/memory/OpenHarness-a1b2c3d4e5f6/</span>
+    <span class="kw">return</span> get_data_dir() / <span class="st">"memory"</span> / <span class="st">f"{path.name}-{digest}"</span></code></pre>
+<div class="hl"><span class="ann">설계</span> 프로젝트명 + SHA1 12자로 충돌 방지. 같은 이름의 다른 경로에 있는 프로젝트도 구분됩니다.</div>
+
+<h4>CRUD API (manager.py)</h4>
+<pre data-f="memory/manager.py"><code><span class="kw">def</span> <span class="fn">add_memory_entry</span>(cwd, title, content) -> Path:
+    slug = re.<span class="fn">sub</span>(r<span class="st">"[^a-zA-Z0-9]+"</span>, <span class="st">"_"</span>, title.lower()).strip(<span class="st">"_"</span>)
+    path = memory_dir / <span class="st">f"{slug}.md"</span>
+    path.<span class="fn">write_text</span>(content)
+    <span class="cm"># MEMORY.md 인덱스에 "- [title](slug.md)" 추가</span>
+    <span class="kw">return</span> path
+
+<span class="kw">def</span> <span class="fn">remove_memory_entry</span>(cwd, name) -> bool:
+    <span class="cm"># 파일 삭제 + MEMORY.md에서 해당 라인 제거</span></code></pre>
+
+<h3 id="mem-search">검색 스코어링</h3>
+<pre data-f="memory/search.py"><code><span class="kw">def</span> <span class="fn">find_relevant_memories</span>(query, cwd, *, max_results=<span class="nb">5</span>):
+    tokens = <span class="fn">_tokenize</span>(query)  <span class="cm"># Han character aware tokenizer</span>
+
+    <span class="kw">for</span> header <span class="kw">in</span> <span class="fn">scan_memory_files</span>(cwd, max_files=<span class="nb">100</span>):
+        meta = <span class="st">f"{header.title} {header.description}"</span>.lower()
+        body = header.body_preview.lower()
+
+        meta_hits = sum(<span class="nb">1</span> <span class="kw">for</span> t <span class="kw">in</span> tokens <span class="kw">if</span> t <span class="kw">in</span> meta)
+        body_hits = sum(<span class="nb">1</span> <span class="kw">for</span> t <span class="kw">in</span> tokens <span class="kw">if</span> t <span class="kw">in</span> body)
+        score = meta_hits * <span class="nb">2.0</span> + body_hits  <span class="cm"># frontmatter 가중치 2배</span>
+
+    <span class="cm"># score 내림차순 → modified_at 내림차순 정렬</span></code></pre>
+<div class="box p"><strong>다국어 지원:</strong> <code>_tokenize</code>에서 Han character (CJK) 토크나이저를 사용하여 한글/중국어/일본어 쿼리도 올바르게 분할합니다. (CHANGELOG에서 수정됨)</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- 10. SWARM                                           -->
+<!-- ═══════════════════════════════════════════════════ -->
+<section id="swarm-arch">
+<h2 class="sh"><span class="sn">10</span> Multi-Agent / Swarm 아키텍처</h2>
+
+<h3>TeammateExecutor Protocol — 실행 백엔드 추상화</h3>
+<pre data-f="swarm/types.py"><code><span class="dc">@runtime_checkable</span>
+<span class="kw">class</span> <span class="dc">TeammateExecutor</span>(<span class="tp">Protocol</span>):
+    type: <span class="tp">BackendType</span>  <span class="cm"># "subprocess" | "in_process" | "tmux" | "iterm2"</span>
+
+    <span class="kw">def</span> <span class="fn">is_available</span>(self) -> bool: ...
+    <span class="kw">async def</span> <span class="fn">spawn</span>(self, config: <span class="tp">TeammateSpawnConfig</span>) -> <span class="tp">SpawnResult</span>: ...
+    <span class="kw">async def</span> <span class="fn">send_message</span>(self, agent_id, message: <span class="tp">TeammateMessage</span>): ...
+    <span class="kw">async def</span> <span class="fn">shutdown</span>(self, agent_id, *, force=False) -> bool: ...</code></pre>
+
+<h4>TeammateSpawnConfig — 에이전트 스폰 설정</h4>
+<pre data-f="swarm/types.py"><code><span class="dc">@dataclass</span>
+<span class="kw">class</span> <span class="dc">TeammateSpawnConfig</span>:
+    name: str              <span class="cm"># "researcher", "tester" 등</span>
+    team: str              <span class="cm"># 소속 팀</span>
+    prompt: str            <span class="cm"># 초기 프롬프트</span>
+    cwd: str               <span class="cm"># 작업 디렉토리</span>
+    parent_session_id: str <span class="cm"># 트랜스크립트 연결용</span>
+    model: str | None      <span class="cm"># 모델 오버라이드</span>
+    system_prompt: str | None
+    permissions: list[str]
+    plan_mode_required: bool = False
+    worktree_path: str | None  <span class="cm"># git worktree 격리</span>
+    subscriptions: list[str]   <span class="cm"># 이벤트 토픽 구독</span></code></pre>
+
+<h3 id="spawn-flow">AgentTool → 스폰 흐름</h3>
+<pre data-f="tools/agent_tool.py"><code><span class="kw">async def</span> <span class="fn">execute</span>(self, args, context):
+    <span class="cm"># 1. subagent_type이 있으면 agent_definitions에서 정의 조회</span>
+    agent_def = <span class="fn">get_agent_definition</span>(args.subagent_type)
+
+    <span class="cm"># 2. BackendRegistry에서 executor 선택</span>
+    <span class="cm">#    in_process → subprocess → 기본 순서로 fallback</span>
+    executor = registry.<span class="fn">get_executor</span>(<span class="st">"in_process"</span>)
+
+    <span class="cm"># 3. TeammateSpawnConfig 생성 → executor.spawn(config)</span>
+    config = <span class="fn">TeammateSpawnConfig</span>(
+        name=agent_name, team=team, prompt=args.prompt,
+        model=args.model <span class="kw">or</span> agent_def.model,
+        system_prompt=agent_def.system_prompt,
+        permissions=agent_def.permissions)
+
+    result = <span class="kw">await</span> executor.<span class="fn">spawn</span>(config)
+
+    <span class="cm"># 4. team이 지정되면 TeamRegistry에 등록</span>
+    <span class="kw">if</span> args.team:
+        <span class="fn">get_team_registry</span>().<span class="fn">add_agent</span>(args.team, result.task_id)
+
+    <span class="kw">return</span> <span class="fn">ToolResult</span>(<span class="st">f"Spawned agent {result.agent_id} (task={result.task_id})"</span>)</code></pre>
+
+<h4>Pane-based 백엔드 (tmux / iTerm2)</h4>
+<p><code>PaneBackend</code> Protocol은 시각적 멀티에이전트 경험을 제공합니다:</p>
+<ul>
+  <li><code>create_teammate_pane_in_swarm_view</code> — 새 터미널 패인 생성</li>
+  <li><code>send_command_to_pane</code> — 패인에 커맨드 전송</li>
+  <li><code>set_pane_border_color / title</code> — 에이전트별 시각적 구분</li>
+  <li><code>hide_pane / show_pane</code> — 패인 숨기기/보이기</li>
+  <li><code>rebalance_panes</code> — 레이아웃 재조정 (leader 패인 고려)</li>
+</ul>
+
+<div class="box g"><strong>전체 Swarm 구성:</strong> swarm/ 디렉토리에 in_process.py (async 동일 프로세스 실행), subprocess_backend.py (별도 프로세스), worktree.py (git worktree 격리), team_lifecycle.py, permission_sync.py, mailbox.py (에이전트 간 메시지 전달), lockfile.py가 포함되어 있습니다.</div>
+</section>
+
+<footer>
+  <strong style="color:var(--g)">oh</strong> — OpenHarness Deep Code Review<br>
+  <span>소스 기반: v0.1.2 (2026-04-06) · HKUDS · MIT</span>
+</footer>
+
+</main>
+</body>
+</html>

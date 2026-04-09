@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpenHarness — Agent 아키텍처 완전 분석</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&family=Fraunces:opsz,wght@9..144,700;9..144,800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#08090d;--bg2:#0c0e14;--sf:#12151e;--sf2:#181c28;--sf3:#1f2536;
+  --bd:#272e42;--tx:#bfc6d8;--tb:#dfe4f0;--td:#5a6480;
+  --g:#34d399;--gd:rgba(52,211,153,.10);--b:#60a5fa;--bd3:rgba(96,165,250,.10);
+  --o:#fb923c;--od:rgba(251,146,60,.08);--p:#a78bfa;--pd:rgba(167,139,250,.08);
+  --r:#f87171;--rd:rgba(248,113,113,.08);--y:#fbbf24;--yd:rgba(251,191,36,.08);
+  --pk:#f472b6;--pkd:rgba(244,114,182,.08);
+  --code:#0a0c12;--toc:264px;--rad:10px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;font-size:14px;scroll-padding-top:20px}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--tx);line-height:1.78;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:var(--bd);border-radius:99px}
+
+.toc{position:fixed;top:0;left:0;width:var(--toc);height:100vh;background:var(--bg2);border-right:1px solid var(--bd);overflow-y:auto;z-index:100;padding:20px 0 40px}
+.toc-hd{text-align:center;padding:0 14px 16px;border-bottom:1px solid var(--bd);margin-bottom:10px}
+.toc-hd h2{font-family:'Fraunces',serif;font-size:1.2rem;color:var(--g)}
+.toc-hd .s{font-size:.55rem;color:var(--td);letter-spacing:2px;text-transform:uppercase}
+.toc a{display:block;padding:3px 16px 3px 20px;font-size:.7rem;color:var(--td);text-decoration:none;border-left:2px solid transparent;transition:.15s}
+.toc a:hover{color:var(--g);border-left-color:var(--g);background:var(--gd)}
+.toc .g{color:var(--tb);font-weight:700;font-size:.58rem;letter-spacing:1.5px;text-transform:uppercase;margin-top:14px;pointer-events:none}
+
+main{margin-left:var(--toc);max-width:850px;padding:36px 44px 120px}
+
+.hero{text-align:center;padding:28px 0 36px;border-bottom:1px solid var(--bd);margin-bottom:44px}
+.hero .chip{display:inline-block;font-size:.58rem;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:var(--g);background:var(--gd);padding:3px 14px;border-radius:99px;margin-bottom:12px}
+.hero h1{font-family:'Fraunces',serif;font-size:2.2rem;color:#fff;margin-bottom:6px}
+.hero h1 em{color:var(--g);font-style:normal}
+.hero p{color:var(--td);font-size:.88rem;font-weight:300;max-width:560px;margin:0 auto}
+
+.part{padding:20px 0 8px;margin:48px 0 24px;border-top:3px solid var(--bd)}
+.part h2{font-family:'Fraunces',serif;font-size:1.6rem;color:#fff;display:flex;align-items:center;gap:10px}
+.part .tag{font-size:.65rem;font-weight:600;padding:3px 12px;border-radius:99px}
+.part .tag.core{color:var(--g);background:var(--gd)}
+.part .tag.peri{color:var(--o);background:var(--od)}
+.part p{color:var(--td);font-size:.88rem;margin-top:6px}
+
+section{margin-bottom:44px}
+.sh{font-family:'Fraunces',serif;font-size:1.3rem;color:#fff;padding-bottom:6px;border-bottom:2px solid var(--bd);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.sn{font-family:'IBM Plex Mono',monospace;font-size:.65rem;font-weight:600;padding:2px 8px;border-radius:4px}
+.sn.g{color:var(--g);background:var(--gd)}.sn.b{color:var(--b);background:var(--bd3)}.sn.o{color:var(--o);background:var(--od)}.sn.p{color:var(--p);background:var(--pd)}.sn.r{color:var(--r);background:var(--rd)}.sn.y{color:var(--y);background:var(--yd)}.sn.pk{color:var(--pk);background:var(--pkd)}
+h3{font-size:1rem;font-weight:600;color:var(--tb);margin:22px 0 6px}
+h4{font-size:.88rem;font-weight:600;color:var(--tb);margin:14px 0 4px}
+p{margin-bottom:10px}
+strong{color:var(--tb)}
+
+pre{background:var(--code);border:1px solid var(--bd);border-radius:var(--rad);padding:14px 18px;overflow-x:auto;margin:8px 0 12px;font-family:'IBM Plex Mono',monospace;font-size:.72rem;line-height:1.75;color:#a0aac0;position:relative}
+pre[data-f]::before{content:attr(data-f);position:absolute;top:4px;right:8px;font-size:.52rem;color:var(--td);letter-spacing:1px;text-transform:uppercase;background:var(--sf);padding:1px 6px;border-radius:3px}
+code{font-family:'IBM Plex Mono',monospace;font-size:.8em;background:var(--sf2);padding:1px 5px;border-radius:3px;color:var(--g)}
+pre code{background:none;padding:0;color:inherit}
+.kw{color:#c792ea}.st{color:#c3e88d}.cm{color:#546e7a;font-style:italic}.fn{color:#82aaff}.nb{color:#f78c6c}.dc{color:#ffcb6b}.tp{color:#f07178}
+
+.dia{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rad);padding:20px;margin:12px 0;overflow-x:auto;display:flex;justify-content:center}
+.dia svg{max-width:100%;height:auto}
+
+.box{border-radius:var(--rad);padding:12px 16px;margin:10px 0;font-size:.82rem;border-left:3px solid}
+.box.g{background:var(--gd);border-color:var(--g)}.box.b{background:var(--bd3);border-color:var(--b)}.box.o{background:var(--od);border-color:var(--o)}.box.p{background:var(--pd);border-color:var(--p)}.box.r{background:var(--rd);border-color:var(--r)}.box.y{background:var(--yd);border-color:var(--y)}.box.pk{background:var(--pkd);border-color:var(--pk)}
+
+.tw{overflow-x:auto;margin:8px 0 12px;border:1px solid var(--bd);border-radius:var(--rad)}
+table{width:100%;border-collapse:collapse;font-size:.78rem}
+thead{background:var(--sf2)}
+th{text-align:left;padding:8px 12px;font-weight:600;font-size:.65rem;letter-spacing:.5px;text-transform:uppercase;color:var(--tb);border-bottom:1px solid var(--bd)}
+td{padding:7px 12px;border-bottom:1px solid var(--bd);vertical-align:top}
+tr:last-child td{border-bottom:none}
+
+.tree{background:var(--code);border:1px solid var(--bd);border-radius:var(--rad);padding:14px 18px;font-family:'IBM Plex Mono',monospace;font-size:.7rem;line-height:1.85;color:#687090;margin:8px 0 12px}
+.tree .d{color:var(--b);font-weight:600}.tree .c{color:var(--td);margin-left:6px}
+
+ul,ol{padding-left:18px;margin:4px 0 10px}
+li{margin-bottom:2px;font-size:.85rem}li::marker{color:var(--g)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin:8px 0;font-size:.72rem}
+.legend span{display:flex;align-items:center;gap:4px}
+.legend .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+footer{text-align:center;padding:28px 0;border-top:1px solid var(--bd);color:var(--td);font-size:.68rem}
+@media(max-width:960px){.toc{display:none}main{margin-left:0;padding:20px 14px 60px}.hero h1{font-size:1.7rem}}
+</style>
+</head>
+<body>
+
+<!-- ═══ TOC ═══ -->
+<nav class="toc">
+<div class="toc-hd"><h2>oh</h2><span class="s">Agent Architecture 완전 분석</span></div>
+<a class="g">Part 1 — 핵심부</a>
+<a href="#core-dir">디렉토리 구조</a>
+<a href="#c1">1-1. The Loop</a>
+<a href="#c1-dia">┗ 플로우차트</a>
+<a href="#c1-code">┗ 코드 리뷰</a>
+<a href="#c2">1-2. Tool Execution</a>
+<a href="#c2-dia">┗ 6단계 다이어그램</a>
+<a href="#c2-code">┗ 코드 리뷰</a>
+<a href="#c3">1-3. Context Assembly</a>
+<a href="#c3-dia">┗ 7-Layer 다이어그램</a>
+<a href="#c3-compact">┗ Auto-Compact</a>
+<a href="#c3-code">┗ 코드 리뷰</a>
+<a class="g">Part 2 — 주변부</a>
+<a href="#peri-dir">디렉토리 구조</a>
+<a href="#p1">2-1. 안전 계층</a>
+<a href="#p1-dia">┗ Permission 체인</a>
+<a href="#p1-hook">┗ Hook 시스템</a>
+<a href="#p2">2-2. 확장 계층</a>
+<a href="#p2-skill">┗ Skills</a>
+<a href="#p2-plugin">┗ Plugins</a>
+<a href="#p2-mcp">┗ MCP</a>
+<a href="#p3">2-3. Multi-Agent</a>
+<a href="#p3-dia">┗ Swarm 아키텍처</a>
+<a href="#p3-code">┗ 코드 리뷰</a>
+<a href="#p4">2-4. 인터페이스</a>
+<a href="#p4-dia">┗ 런타임 조립</a>
+<a href="#p4-code">┗ 코드 리뷰</a>
+</nav>
+
+<!-- ═══ MAIN ═══ -->
+<main>
+
+<div class="hero">
+  <div class="chip">핵심부 + 주변부 통합 문서</div>
+  <h1><em>OpenHarness</em> Agent 아키텍처 완전 분석</h1>
+  <p>에이전트의 3대 핵심(Loop · Tool · Context)과 4대 주변부(안전 · 확장 · Multi-Agent · 인터페이스)를 디렉토리, 다이어그램, 코드 레벨로 분석합니다.</p>
+</div>
+
+<!-- ╔═══════════════════════════════════════════════════════╗ -->
+<!-- ║  PART 1 — 핵심부                                      ║ -->
+<!-- ╚═══════════════════════════════════════════════════════╝ -->
+<div class="part" id="core"><h2><span class="tag core">CORE</span> Part 1 — 핵심부</h2><p>에이전트를 에이전트로 만드는 3가지. 이것 없이는 그냥 챗봇.</p></div>
+
+<!-- Core Directory -->
+<section id="core-dir">
+<h2 class="sh"><span class="sn g">DIR</span> 핵심부 디렉토리 구조</h2>
+<div class="tree">
+<span class="d">src/openharness/</span><br>
+├─ <span class="d">engine/</span><span class="c">── 에이전트 루프 전체</span><br>
+│  ├─ query.py<span class="c">── <strong style="color:#34d399">run_query()</strong> — 핵심 while 루프</span><br>
+│  ├─ query_engine.py<span class="c">── QueryEngine 클래스 (세션 소유자)</span><br>
+│  ├─ messages.py<span class="c">── ContentBlock 타입 시스템 (Text/ToolUse/ToolResult)</span><br>
+│  ├─ stream_events.py<span class="c">── StreamEvent 6종 (TextDelta, TurnComplete, ...)</span><br>
+│  └─ cost_tracker.py<span class="c">── UsageSnapshot 누적</span><br>
+├─ <span class="d">tools/</span><span class="c">── 도구 실행 (43+ 도구)</span><br>
+│  ├─ base.py<span class="c">── <strong style="color:#60a5fa">BaseTool, ToolRegistry</strong></span><br>
+│  ├─ bash_tool.py, file_read_tool.py, ...<span class="c">── 개별 도구 구현</span><br>
+│  └─ skill_tool.py<span class="c">── 스킬 로딩 도구</span><br>
+├─ <span class="d">prompts/</span><span class="c">── 컨텍스트 조립</span><br>
+│  ├─ system_prompt.py<span class="c">── <strong style="color:#fb923c">_BASE_SYSTEM_PROMPT</strong> + Environment</span><br>
+│  ├─ context.py<span class="c">── <strong style="color:#fb923c">build_runtime_system_prompt()</strong> — 7-Layer 조립</span><br>
+│  ├─ claudemd.py<span class="c">── CLAUDE.md 탐색/주입</span><br>
+│  └─ environment.py<span class="c">── OS/shell/git 감지</span><br>
+├─ <span class="d">services/compact/</span><span class="c">── 컨텍스트 윈도우 관리</span><br>
+│  └─ __init__.py<span class="c">── microcompact + full compact + auto_compact_if_needed</span><br>
+├─ <span class="d">memory/</span><span class="c">── 영속 메모리</span><br>
+│  ├─ paths.py, manager.py, scan.py, search.py<br>
+│  └─ memdir.py<span class="c">── MEMORY.md 프롬프트 생성</span><br>
+└─ <span class="d">api/</span><span class="c">── LLM API 추상화</span><br>
+&nbsp;&nbsp; ├─ client.py<span class="c">── <strong style="color:#a78bfa">SupportsStreamingMessages</strong> Protocol + AnthropicApiClient</span><br>
+&nbsp;&nbsp; ├─ openai_client.py<span class="c">── OpenAI 호환</span><br>
+&nbsp;&nbsp; ├─ copilot_client.py, codex_client.py<br>
+&nbsp;&nbsp; └─ usage.py<span class="c">── UsageSnapshot(input_tokens, output_tokens)</span>
+</div>
+</section>
+
+<!-- ═══ 1-1. THE LOOP ═══ -->
+<section id="c1">
+<h2 class="sh"><span class="sn g">1-1</span> The Loop — 에이전트의 존재 이유</h2>
+<p>이 <code>while</code> 루프 하나가 "챗봇"과 "에이전트"를 가릅니다. 모델이 <code>stop_reason="tool_use"</code>를 반환하는 한 루프를 계속합니다.</p>
+
+<h3 id="c1-dia">플로우차트</h3>
+<div class="dia">
+<svg viewBox="0 0 760 680" xmlns="http://www.w3.org/2000/svg" font-family="'Plus Jakarta Sans',sans-serif">
+  <defs>
+    <marker id="ah" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#34d399"/></marker>
+    <marker id="ahr" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#f87171"/></marker>
+  </defs>
+  <rect x="270" y="12" width="220" height="44" rx="22" fill="#1f2536" stroke="#34d399" stroke-width="1.5"/>
+  <text x="380" y="40" text-anchor="middle" fill="#34d399" font-size="12" font-weight="600">사용자 메시지 입력</text>
+  <line x1="380" y1="56" x2="380" y2="84" stroke="#34d399" stroke-width="1.5" marker-end="url(#ah)"/>
+  <rect x="255" y="84" width="250" height="36" rx="7" fill="#12151e" stroke="#272e42"/>
+  <text x="380" y="106" text-anchor="middle" fill="#bfc6d8" font-size="10">submit_message → messages에 추가</text>
+  <line x1="380" y1="120" x2="380" y2="150" stroke="#34d399" stroke-width="1.5" marker-end="url(#ah)"/>
+
+  <rect x="40" y="150" width="680" height="440" rx="12" fill="none" stroke="#34d399" stroke-width="1" stroke-dasharray="5,3" opacity=".4"/>
+  <text x="56" y="168" fill="#34d399" font-size="9" font-weight="600" opacity=".6">while turn_count &lt; max_turns (기본 200)</text>
+
+  <rect x="255" y="180" width="250" height="40" rx="7" fill="#181c28" stroke="#fbbf24"/>
+  <text x="380" y="204" text-anchor="middle" fill="#fbbf24" font-size="10.5" font-weight="500">① Auto-Compact 체크</text>
+  <line x1="380" y1="220" x2="380" y2="248" stroke="#34d399" stroke-width="1.5" marker-end="url(#ah)"/>
+
+  <rect x="255" y="248" width="250" height="40" rx="7" fill="#181c28" stroke="#60a5fa"/>
+  <text x="380" y="272" text-anchor="middle" fill="#60a5fa" font-size="10.5" font-weight="500">② API stream_message</text>
+  <line x1="380" y1="288" x2="380" y2="316" stroke="#34d399" stroke-width="1.5" marker-end="url(#ah)"/>
+
+  <rect x="270" y="316" width="220" height="32" rx="7" fill="#12151e" stroke="#272e42"/>
+  <text x="380" y="336" text-anchor="middle" fill="#bfc6d8" font-size="9.5">messages.append(assistant_msg)</text>
+  <line x1="380" y1="348" x2="380" y2="378" stroke="#34d399" stroke-width="1.5" marker-end="url(#ah)"/>
+
+  <polygon points="380,378 480,418 380,458 280,418" fill="#1f2536" stroke="#a78bfa" stroke-width="1.5"/>
+  <text x="380" y="416" text-anchor="middle" fill="#a78bfa" font-size="10.5" font-weight="600">tool_uses?</text>
+
+  <line x1="480" y1="418" x2="600" y2="418" stroke="#f87171" stroke-width="1.5" marker-end="url(#ahr)"/>
+  <text x="530" y="411" fill="#f87171" font-size="9" font-weight="600">NO</text>
+  <rect x="600" y="402" width="100" height="32" rx="16" fill="#1f2536" stroke="#f87171" stroke-width="1.5"/>
+  <text x="650" y="422" text-anchor="middle" fill="#f87171" font-size="10" font-weight="600">return 종료</text>
+
+  <line x1="380" y1="458" x2="380" y2="488" stroke="#34d399" stroke-width="1.5" marker-end="url(#ah)"/>
+  <text x="395" y="476" fill="#34d399" font-size="9" font-weight="600">YES</text>
+
+  <rect x="220" y="488" width="320" height="40" rx="7" fill="#181c28" stroke="#fb923c" stroke-width="1.5"/>
+  <text x="380" y="512" text-anchor="middle" fill="#fb923c" font-size="10.5" font-weight="500">④ Tool Execution (6단계 체인)</text>
+  <line x1="380" y1="528" x2="380" y2="552" stroke="#34d399" stroke-width="1.5" marker-end="url(#ah)"/>
+
+  <rect x="240" y="552" width="280" height="32" rx="7" fill="#12151e" stroke="#272e42"/>
+  <text x="380" y="572" text-anchor="middle" fill="#bfc6d8" font-size="9.5">messages.append(tool_results)</text>
+
+  <path d="M240,568 L100,568 L100,200 L255,200" fill="none" stroke="#34d399" stroke-width="1.5" marker-end="url(#ah)" stroke-dasharray="4,3"/>
+  <text x="88" y="390" fill="#34d399" font-size="8" font-weight="600" transform="rotate(-90,88,390)">다음 턴 ↑</text>
+</svg>
+</div>
+
+<div class="legend">
+  <span><span class="dot" style="background:#fbbf24"></span>Compact</span>
+  <span><span class="dot" style="background:#60a5fa"></span>API 호출</span>
+  <span><span class="dot" style="background:#a78bfa"></span>분기</span>
+  <span><span class="dot" style="background:#fb923c"></span>도구 실행</span>
+  <span><span class="dot" style="background:#f87171"></span>종료</span>
+</div>
+
+<h3 id="c1-code">코드 리뷰</h3>
+<h4>QueryEngine — 세션 소유자 (query_engine.py)</h4>
+<pre data-f="query_engine.py"><code><span class="kw">class</span> <span class="dc">QueryEngine</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, *, api_client: <span class="tp">SupportsStreamingMessages</span>,
+        tool_registry, permission_checker, model, system_prompt,
+        max_tokens=<span class="nb">4096</span>, max_turns=<span class="nb">8</span>, hook_executor=None):
+        self._messages: list[ConversationMessage] = []
+        self._cost_tracker = CostTracker()
+
+    <span class="kw">async def</span> <span class="fn">submit_message</span>(self, prompt):
+        self._messages.append(ConversationMessage.from_user_text(prompt))
+        context = QueryContext(...)  <span class="cm"># 모든 의존성 번들</span>
+        <span class="kw">async for</span> event, usage <span class="kw">in</span> <span class="fn">run_query</span>(context, self._messages):
+            <span class="kw">if</span> usage: self._cost_tracker.add(usage)
+            <span class="kw">yield</span> event</code></pre>
+
+<h4>run_query — 핵심 while 루프 (query.py)</h4>
+<pre data-f="query.py"><code><span class="kw">async def</span> <span class="fn">run_query</span>(context, messages) -> AsyncIterator[...]:
+    compact_state = AutoCompactState()
+    turn_count = <span class="nb">0</span>
+    <span class="kw">while</span> context.max_turns <span class="kw">is</span> None <span class="kw">or</span> turn_count < context.max_turns:
+        turn_count += <span class="nb">1</span>
+        <span class="cm"># ① auto-compact</span>
+        messages, _ = <span class="kw">await</span> auto_compact_if_needed(messages, ...)
+        <span class="cm"># ② API 스트리밍</span>
+        <span class="kw">async for</span> event <span class="kw">in</span> api_client.stream_message(ApiMessageRequest(
+            model=..., messages=messages, tools=tool_registry.to_api_schema())):
+            <span class="kw">if</span> isinstance(event, ApiTextDeltaEvent): <span class="kw">yield</span> AssistantTextDelta(...)
+            <span class="kw">elif</span> isinstance(event, ApiMessageCompleteEvent): final_message = ...
+        messages.append(final_message)
+        <span class="kw">yield</span> AssistantTurnComplete(...)
+        <span class="cm"># ③ 도구 호출 없으면 종료</span>
+        <span class="kw">if not</span> final_message.tool_uses: <span class="kw">return</span>
+        <span class="cm"># ④ 도구 실행 (단일→순차, 복수→asyncio.gather)</span>
+        tool_results = [<span class="kw">await</span> _execute_tool_call(...) <span class="kw">for</span> tc <span class="kw">in</span> tool_calls]
+        messages.append(ConversationMessage(role=<span class="st">"user"</span>, content=tool_results))</code></pre>
+<div class="box g"><strong>핵심:</strong> <code>messages</code> 리스트가 참조 전달되어 run_query 내부에서 직접 append. compact도 이 리스트를 in-place 변환합니다.</div>
+
+<h4>병렬 실행</h4>
+<pre data-f="query.py"><code><span class="kw">if</span> len(tool_calls) == <span class="nb">1</span>:  <span class="cm"># 순차: Started → await execute → Completed</span>
+    ...
+<span class="kw">else</span>:  <span class="cm"># 병렬: Started×N 먼저 → asyncio.gather → Completed×N</span>
+    results = <span class="kw">await</span> asyncio.gather(*[_run(tc) <span class="kw">for</span> tc <span class="kw">in</span> tool_calls])</code></pre>
+</section>
+
+<!-- ═══ 1-2. TOOL EXECUTION ═══ -->
+<section id="c2">
+<h2 class="sh"><span class="sn b">1-2</span> Tool Execution — 에이전트의 손</h2>
+
+<h3 id="c2-dia">6단계 체인 다이어그램</h3>
+<div class="dia">
+<svg viewBox="0 0 720 460" xmlns="http://www.w3.org/2000/svg" font-family="'Plus Jakarta Sans',sans-serif">
+  <defs><marker id="ab" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5" fill="#60a5fa"/></marker>
+  <marker id="ar" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5" fill="#f87171"/></marker></defs>
+
+  <rect x="180" y="10" width="320" height="46" rx="8" fill="#181c28" stroke="#a78bfa" stroke-width="1.5"/>
+  <text x="200" y="30" fill="#a78bfa" font-size="10.5" font-weight="700">① PreToolUse Hook</text>
+  <text x="200" y="46" fill="#5a6480" font-size="8.5">matcher 매칭 → command/http/prompt/agent 실행</text>
+  <line x1="500" y1="33" x2="590" y2="33" stroke="#f87171" stroke-width="1" marker-end="url(#ar)"/>
+  <text x="608" y="37" fill="#f87171" font-size="8.5">blocked</text>
+  <line x1="340" y1="56" x2="340" y2="78" stroke="#60a5fa" stroke-width="1.5" marker-end="url(#ab)"/>
+
+  <rect x="180" y="78" width="320" height="40" rx="8" fill="#181c28" stroke="#60a5fa" stroke-width="1.5"/>
+  <text x="200" y="96" fill="#60a5fa" font-size="10.5" font-weight="700">② Registry Lookup</text>
+  <text x="200" y="110" fill="#5a6480" font-size="8.5">tool_registry.get(tool_name) — 없으면 "Unknown tool"</text>
+  <line x1="340" y1="118" x2="340" y2="140" stroke="#60a5fa" stroke-width="1.5" marker-end="url(#ab)"/>
+
+  <rect x="180" y="140" width="320" height="40" rx="8" fill="#181c28" stroke="#fbbf24" stroke-width="1.5"/>
+  <text x="200" y="158" fill="#fbbf24" font-size="10.5" font-weight="700">③ Pydantic Validation</text>
+  <text x="200" y="172" fill="#5a6480" font-size="8.5">input_model.model_validate(tool_input)</text>
+  <line x1="340" y1="180" x2="340" y2="202" stroke="#60a5fa" stroke-width="1.5" marker-end="url(#ab)"/>
+
+  <rect x="180" y="202" width="320" height="52" rx="8" fill="#181c28" stroke="#fb923c" stroke-width="1.5"/>
+  <text x="200" y="222" fill="#fb923c" font-size="10.5" font-weight="700">④ Permission Check</text>
+  <text x="200" y="238" fill="#5a6480" font-size="8.5">sensitive → denied → path_rules → mode 분기</text>
+  <text x="200" y="248" fill="#5a6480" font-size="7.5">requires_confirmation → 사용자에게 승인 요청</text>
+  <line x1="340" y1="254" x2="340" y2="276" stroke="#60a5fa" stroke-width="1.5" marker-end="url(#ab)"/>
+
+  <rect x="180" y="276" width="320" height="46" rx="8" fill="#181c28" stroke="#34d399" stroke-width="2"/>
+  <text x="200" y="296" fill="#34d399" font-size="10.5" font-weight="700">⑤ tool.execute(input, context)</text>
+  <text x="200" y="312" fill="#5a6480" font-size="8.5">실제 실행 + time.monotonic()로 시간 측정</text>
+  <line x1="340" y1="322" x2="340" y2="344" stroke="#60a5fa" stroke-width="1.5" marker-end="url(#ab)"/>
+
+  <rect x="180" y="344" width="320" height="40" rx="8" fill="#181c28" stroke="#a78bfa" stroke-width="1.5"/>
+  <text x="200" y="362" fill="#a78bfa" font-size="10.5" font-weight="700">⑥ PostToolUse Hook</text>
+  <text x="200" y="378" fill="#5a6480" font-size="8.5">결과(output, is_error)와 함께 훅 실행</text>
+  <line x1="340" y1="384" x2="340" y2="410" stroke="#34d399" stroke-width="1.5" marker-end="url(#ab)"/>
+
+  <rect x="240" y="410" width="200" height="32" rx="16" fill="#1f2536" stroke="#34d399" stroke-width="1.5"/>
+  <text x="340" y="430" text-anchor="middle" fill="#34d399" font-size="10" font-weight="600">ToolResultBlock 반환</text>
+
+  <text x="640" y="240" fill="#5a6480" font-size="8" text-anchor="middle">어느 단계에서든<br/></text>
+  <text x="640" y="252" fill="#f87171" font-size="8" text-anchor="middle">실패 → is_error=True</text>
+</svg>
+</div>
+
+<h3 id="c2-code">코드 리뷰</h3>
+<h4>BaseTool — 모든 도구의 기반 (tools/base.py)</h4>
+<pre data-f="base.py"><code><span class="kw">class</span> <span class="dc">BaseTool</span>(ABC):
+    name: str; description: str
+    input_model: type[BaseModel]  <span class="cm"># Pydantic → JSON Schema 자동 생성</span>
+    <span class="kw">async def</span> <span class="fn">execute</span>(self, args, ctx: ToolExecutionContext) -> ToolResult: ...
+    <span class="kw">def</span> <span class="fn">is_read_only</span>(self, args) -> bool: ...  <span class="cm"># 권한 판단용</span>
+    <span class="kw">def</span> <span class="fn">to_api_schema</span>(self) -> dict: ...       <span class="cm"># {"name", "description", "input_schema"}</span>
+
+<span class="kw">class</span> <span class="dc">ToolRegistry</span>:
+    <span class="kw">def</span> <span class="fn">register</span>(self, tool): self._tools[tool.name] = tool
+    <span class="kw">def</span> <span class="fn">to_api_schema</span>(self) -> list[dict]:  <span class="cm"># 전체 도구 스키마 → API 전달</span></code></pre>
+
+<h4>ContentBlock 타입 시스템 (messages.py)</h4>
+<pre data-f="messages.py"><code>ContentBlock = Annotated[TextBlock | ToolUseBlock | ToolResultBlock, Field(discriminator=<span class="st">"type"</span>)]
+
+<span class="kw">class</span> <span class="dc">ToolUseBlock</span>:  <span class="cm"># assistant가 생성</span>
+    type = <span class="st">"tool_use"</span>; id: str; name: str; input: dict
+<span class="kw">class</span> <span class="dc">ToolResultBlock</span>:  <span class="cm"># harness가 생성 → user 메시지에 담김</span>
+    type = <span class="st">"tool_result"</span>; tool_use_id: str; content: str; is_error: bool</code></pre>
+<div class="box b"><strong>Tool Use 판단:</strong> 별도 classifier 모델 없음. 동일한 생성형 모델이 도구 스키마를 컨텍스트로 받고, "도구를 쓴다" = ToolUseBlock 토큰을 생성하는 것. Harness는 이 출력을 파싱해서 실행할 뿐.</div>
+</section>
+
+<!-- ═══ 1-3. CONTEXT ASSEMBLY ═══ -->
+<section id="c3">
+<h2 class="sh"><span class="sn o">1-3</span> Context Assembly — 에이전트의 기억</h2>
+
+<h3 id="c3-dia">시스템 프롬프트 7-Layer 스택</h3>
+<div class="dia">
+<svg viewBox="0 0 680 420" xmlns="http://www.w3.org/2000/svg" font-family="'Plus Jakarta Sans',sans-serif">
+  <rect x="60" y="10" width="520" height="48" rx="7" fill="#181c28" stroke="#34d399" stroke-width="1.5"/>
+  <text x="80" y="30" fill="#34d399" font-size="10" font-weight="700">L1 — Base Prompt + Environment</text>
+  <text x="80" y="46" fill="#5a6480" font-size="8">행동 원칙, 도구 규칙, 톤 + OS/shell/cwd/git/date</text>
+
+  <rect x="60" y="66" width="520" height="38" rx="7" fill="#181c28" stroke="#60a5fa" stroke-width="1"/>
+  <text x="80" y="86" fill="#60a5fa" font-size="10" font-weight="700">L2 — Session Settings</text>
+  <text x="80" y="98" fill="#5a6480" font-size="8">fast_mode, effort, passes</text>
+
+  <rect x="60" y="112" width="520" height="38" rx="7" fill="#181c28" stroke="#fbbf24" stroke-width="1"/>
+  <text x="80" y="132" fill="#fbbf24" font-size="10" font-weight="700">L3 — Available Skills</text>
+  <text x="80" y="144" fill="#5a6480" font-size="8">번들+사용자+플러그인 스킬 목록 → 모델이 skill() 도구로 로딩</text>
+
+  <rect x="60" y="158" width="520" height="46" rx="7" fill="#181c28" stroke="#a78bfa" stroke-width="1.5"/>
+  <text x="80" y="178" fill="#a78bfa" font-size="10" font-weight="700">L4 — CLAUDE.md (프로젝트 인스트럭션)</text>
+  <text x="80" y="194" fill="#5a6480" font-size="8">cwd→상위 순회, .claude/rules/*.md, 파일당 12K자 제한</text>
+
+  <rect x="60" y="212" width="520" height="38" rx="7" fill="#181c28" stroke="#fb923c" stroke-width="1"/>
+  <text x="80" y="232" fill="#fb923c" font-size="10" font-weight="700">L5 — Issue / PR Context</text>
+  <text x="80" y="244" fill="#5a6480" font-size="8">현재 이슈·PR 코멘트 (있으면)</text>
+
+  <rect x="60" y="258" width="520" height="46" rx="7" fill="#181c28" stroke="#f87171" stroke-width="1.5"/>
+  <text x="80" y="278" fill="#f87171" font-size="10" font-weight="700">L6 — MEMORY.md Index</text>
+  <text x="80" y="294" fill="#5a6480" font-size="8">영속 메모리 엔트리포인트 (최대 200줄)</text>
+
+  <rect x="60" y="312" width="520" height="46" rx="7" fill="#181c28" stroke="#f472b6" stroke-width="1.5"/>
+  <text x="80" y="332" fill="#f472b6" font-size="10" font-weight="700">L7 — Relevant Memories</text>
+  <text x="80" y="348" fill="#5a6480" font-size="8">사용자 입력 기반 검색 (max 5개, frontmatter 2×, body 1×)</text>
+
+  <line x1="320" y1="362" x2="320" y2="388" stroke="#34d399" stroke-width="1.5" marker-end="url(#ah)"/>
+  <rect x="200" y="388" width="240" height="28" rx="14" fill="#1f2536" stroke="#34d399" stroke-width="1.5"/>
+  <text x="320" y="406" text-anchor="middle" fill="#34d399" font-size="10" font-weight="600">"\n\n".join → API 전송</text>
+</svg>
+</div>
+
+<h3 id="c3-compact">Auto-Compact 2단계</h3>
+<div class="dia">
+<svg viewBox="0 0 720 360" xmlns="http://www.w3.org/2000/svg" font-family="'Plus Jakarta Sans',sans-serif">
+  <defs><marker id="ac" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5" fill="#60a5fa"/></marker>
+  <marker id="acg" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5" fill="#34d399"/></marker></defs>
+
+  <rect x="200" y="10" width="300" height="40" rx="7" fill="#181c28" stroke="#60a5fa" stroke-width="1.5"/>
+  <text x="350" y="34" text-anchor="middle" fill="#60a5fa" font-size="10.5" font-weight="600">토큰 ≥ 167K? (200K - 20K - 13K)</text>
+  <line x1="500" y1="30" x2="590" y2="30" stroke="#34d399" stroke-width="1.5" marker-end="url(#acg)"/>
+  <text x="536" y="24" fill="#34d399" font-size="8.5" font-weight="600">NO → 진행</text>
+  <line x1="350" y1="50" x2="350" y2="78" stroke="#60a5fa" stroke-width="1.5" marker-end="url(#ac)"/>
+  <text x="362" y="68" fill="#fbbf24" font-size="8" font-weight="600">YES</text>
+
+  <rect x="120" y="78" width="460" height="60" rx="8" fill="#181c28" stroke="#fbbf24" stroke-width="1.5"/>
+  <text x="140" y="98" fill="#fbbf24" font-size="11" font-weight="700">1단계: Microcompact (무료)</text>
+  <text x="140" y="114" fill="#5a6480" font-size="9">오래된 tool result → "[Old tool result content cleared]"</text>
+  <text x="140" y="128" fill="#5a6480" font-size="8">대상: read_file, bash, grep, glob, web_*, edit_file, write_file | 최근 5개 보존</text>
+
+  <line x1="350" y1="138" x2="350" y2="164" stroke="#60a5fa" stroke-width="1.5" marker-end="url(#ac)"/>
+
+  <polygon points="350,164 440,190 350,216 260,190" fill="#1f2536" stroke="#a78bfa" stroke-width="1"/>
+  <text x="350" y="192" text-anchor="middle" fill="#a78bfa" font-size="9" font-weight="600">아직 초과?</text>
+  <line x1="440" y1="190" x2="560" y2="190" stroke="#34d399" stroke-width="1.5" marker-end="url(#acg)"/>
+  <text x="492" y="184" fill="#34d399" font-size="8" font-weight="600">NO → 충분!</text>
+  <line x1="350" y1="216" x2="350" y2="244" stroke="#60a5fa" stroke-width="1.5" marker-end="url(#ac)"/>
+
+  <rect x="120" y="244" width="460" height="70" rx="8" fill="#181c28" stroke="#f87171" stroke-width="1.5"/>
+  <text x="140" y="264" fill="#f87171" font-size="11" font-weight="700">2단계: Full Compact (LLM 요약)</text>
+  <text x="140" y="282" fill="#5a6480" font-size="9">older → LLM 요약 → &lt;analysis&gt; + &lt;summary&gt; 9섹션</text>
+  <text x="140" y="296" fill="#5a6480" font-size="8">preserve_recent=6 | max_tokens=20,000 | 연속 실패 3회 시 비활성화</text>
+  <text x="140" y="308" fill="#5a6480" font-size="8">결과: [summary_msg, ...최근6개] → 새 messages</text>
+
+  <line x1="350" y1="314" x2="350" y2="340" stroke="#34d399" stroke-width="1.5" marker-end="url(#acg)"/>
+  <rect x="250" y="340" width="200" height="24" rx="12" fill="#1f2536" stroke="#34d399" stroke-width="1"/>
+  <text x="350" y="356" text-anchor="middle" fill="#34d399" font-size="9" font-weight="600">압축된 messages로 교체</text>
+</svg>
+</div>
+
+<h3 id="c3-code">코드 리뷰</h3>
+<pre data-f="context.py — build_runtime_system_prompt"><code><span class="kw">def</span> <span class="fn">build_runtime_system_prompt</span>(settings, *, cwd, latest_user_prompt):
+    sections = [build_system_prompt(...)]  <span class="cm"># L1: base+env</span>
+    sections += [session_settings]          <span class="cm"># L2: effort, passes</span>
+    sections += [_build_skills_section()]   <span class="cm"># L3: skill 목록</span>
+    sections += [load_claude_md_prompt()]   <span class="cm"># L4: CLAUDE.md</span>
+    sections += [issue/pr context]          <span class="cm"># L5</span>
+    sections += [load_memory_prompt()]      <span class="cm"># L6: MEMORY.md index</span>
+    sections += [find_relevant_memories()]  <span class="cm"># L7: 관련 메모리</span>
+    <span class="kw">return</span> <span class="st">"\n\n"</span>.join(sections)</code></pre>
+<pre data-f="compact — 토큰 추정"><code><span class="kw">def</span> <span class="fn">estimate_tokens</span>(text): <span class="kw">return</span> max(<span class="nb">1</span>, (len(text)+<span class="nb">3</span>)//<span class="nb">4</span>)  <span class="cm"># 4자≈1토큰</span>
+<span class="cm"># × 4/3 패딩. 한글/CJK에서 과소추정 가능</span></code></pre>
+</section>
+
+<!-- ╔═══════════════════════════════════════════════════════╗ -->
+<!-- ║  PART 2 — 주변부                                      ║ -->
+<!-- ╚═══════════════════════════════════════════════════════╝ -->
+<div class="part" id="peri"><h2><span class="tag peri">PERIPHERY</span> Part 2 — 주변부</h2><p>핵심부를 보호·확장·복제·표시하는 4가지 계층.</p></div>
+
+<!-- Peri Directory -->
+<section id="peri-dir">
+<h2 class="sh"><span class="sn o">DIR</span> 주변부 디렉토리 구조</h2>
+<div class="tree">
+<span class="d">src/openharness/</span><br>
+<span class="c">── 안전 계층 ──</span><br>
+├─ <span class="d">permissions/</span><span class="c">── modes.py (3모드), checker.py (PermissionChecker)</span><br>
+├─ <span class="d">hooks/</span><span class="c">── schemas.py (4타입), executor.py, loader.py, hot_reload.py</span><br>
+├─ <span class="d">sandbox/</span><span class="c">── adapter.py (OS-level sandboxing)</span><br>
+<span class="c">── 확장 계층 ──</span><br>
+├─ <span class="d">skills/</span><span class="c">── loader.py, registry.py, types.py, bundled/</span><br>
+├─ <span class="d">plugins/</span><span class="c">── loader.py, schemas.py, types.py, installer.py</span><br>
+├─ <span class="d">mcp/</span><span class="c">── client.py (McpClientManager), config.py, types.py</span><br>
+<span class="c">── Multi-Agent ──</span><br>
+├─ <span class="d">coordinator/</span><span class="c">── TeamRegistry, agent_definitions.py</span><br>
+├─ <span class="d">swarm/</span><span class="c">── in_process.py, subprocess_backend.py, mailbox.py, types.py</span><br>
+├─ <span class="d">tasks/</span><span class="c">── manager.py (BackgroundTaskManager), local_agent_task.py</span><br>
+<span class="c">── 인터페이스 ──</span><br>
+├─ <span class="d">ui/</span><span class="c">── runtime.py (RuntimeBundle), backend_host.py, react_launcher.py</span><br>
+├─ <span class="d">commands/</span><span class="c">── registry.py (54 slash commands)</span><br>
+├─ <span class="d">config/</span><span class="c">── settings.py (Pydantic), paths.py</span><br>
+└─ <span class="d">auth/</span><span class="c">── manager.py, external.py, flows.py</span>
+</div>
+</section>
+
+<!-- ═══ 2-1. 안전 계층 ═══ -->
+<section id="p1">
+<h2 class="sh"><span class="sn r">2-1</span> 안전 계층 — 핵심부를 보호</h2>
+<p>루프(①)와 도구 실행(②) 사이에 끼어서 "이거 실행해도 되나?" 검증합니다.</p>
+
+<h3 id="p1-dia">Permission 평가 체인</h3>
+<div class="dia">
+<svg viewBox="0 0 720 200" xmlns="http://www.w3.org/2000/svg" font-family="'Plus Jakarta Sans',sans-serif">
+  <defs><marker id="ap" markerWidth="6" markerHeight="4" refX="6" refY="2" orient="auto"><path d="M0,0 L6,2 L0,4" fill="#5a6480"/></marker></defs>
+
+  <rect x="10" y="20" width="100" height="50" rx="6" fill="#181c28" stroke="#f87171" stroke-width="1.5"/>
+  <text x="60" y="40" text-anchor="middle" fill="#f87171" font-size="8.5" font-weight="700">Sensitive</text>
+  <text x="60" y="52" text-anchor="middle" fill="#f87171" font-size="8.5" font-weight="700">Paths</text>
+  <text x="60" y="64" text-anchor="middle" fill="#5a6480" font-size="6.5">하드코딩, 오버라이드 불가</text>
+  <line x1="110" y1="45" x2="130" y2="45" stroke="#5a6480" stroke-width="1" marker-end="url(#ap)"/>
+
+  <rect x="130" y="26" width="80" height="38" rx="6" fill="#181c28" stroke="#fb923c" stroke-width="1"/>
+  <text x="170" y="44" text-anchor="middle" fill="#fb923c" font-size="8" font-weight="600">denied</text>
+  <text x="170" y="56" text-anchor="middle" fill="#fb923c" font-size="8" font-weight="600">tools</text>
+  <line x1="210" y1="45" x2="230" y2="45" stroke="#5a6480" stroke-width="1" marker-end="url(#ap)"/>
+
+  <rect x="230" y="26" width="80" height="38" rx="6" fill="#181c28" stroke="#34d399" stroke-width="1"/>
+  <text x="270" y="44" text-anchor="middle" fill="#34d399" font-size="8" font-weight="600">allowed</text>
+  <text x="270" y="56" text-anchor="middle" fill="#34d399" font-size="8" font-weight="600">tools</text>
+  <line x1="310" y1="45" x2="330" y2="45" stroke="#5a6480" stroke-width="1" marker-end="url(#ap)"/>
+
+  <rect x="330" y="26" width="80" height="38" rx="6" fill="#181c28" stroke="#fb923c" stroke-width="1"/>
+  <text x="370" y="44" text-anchor="middle" fill="#fb923c" font-size="8" font-weight="600">path</text>
+  <text x="370" y="56" text-anchor="middle" fill="#fb923c" font-size="8" font-weight="600">rules</text>
+  <line x1="410" y1="45" x2="430" y2="45" stroke="#5a6480" stroke-width="1" marker-end="url(#ap)"/>
+
+  <rect x="430" y="26" width="80" height="38" rx="6" fill="#181c28" stroke="#fb923c" stroke-width="1"/>
+  <text x="470" y="44" text-anchor="middle" fill="#fb923c" font-size="8" font-weight="600">denied</text>
+  <text x="470" y="56" text-anchor="middle" fill="#fb923c" font-size="8" font-weight="600">commands</text>
+  <line x1="510" y1="45" x2="530" y2="45" stroke="#5a6480" stroke-width="1" marker-end="url(#ap)"/>
+
+  <polygon points="580,45 640,72 580,99 520,72" fill="#1f2536" stroke="#a78bfa" stroke-width="1"/>
+  <text x="580" y="74" text-anchor="middle" fill="#a78bfa" font-size="8" font-weight="600">Mode?</text>
+
+  <text x="580" y="124" text-anchor="middle" fill="#5a6480" font-size="8">FULL_AUTO → ✓ 허용</text>
+  <text x="580" y="138" text-anchor="middle" fill="#5a6480" font-size="8">read_only → ✓ 허용</text>
+  <text x="580" y="152" text-anchor="middle" fill="#5a6480" font-size="8">PLAN → ✕ 차단</text>
+  <text x="580" y="166" text-anchor="middle" fill="#fbbf24" font-size="8">DEFAULT → 사용자 확인</text>
+
+  <text x="360" y="96" text-anchor="middle" fill="#f87171" font-size="7">.ssh/* · .aws/credentials · .gnupg/* · .docker/config.json · .kube/config</text>
+</svg>
+</div>
+
+<h3 id="p1-hook">Hook 시스템</h3>
+<div class="tw"><table>
+<thead><tr><th>Hook 타입</th><th>실행 방식</th><th>판정</th><th>block_on_failure</th></tr></thead>
+<tbody>
+<tr><td><code>command</code></td><td>셸 서브프로세스</td><td>returncode == 0</td><td>false</td></tr>
+<tr><td><code>http</code></td><td>httpx POST</td><td>response.is_success</td><td>false</td></tr>
+<tr><td><code>prompt</code></td><td>LLM → JSON {"ok": true/false}</td><td>ok 필드</td><td>true</td></tr>
+<tr><td><code>agent</code></td><td>LLM 심화 추론</td><td>동일</td><td>true</td></tr>
+</tbody>
+</table></div>
+<pre data-f="executor.py"><code><span class="kw">async def</span> <span class="fn">execute</span>(self, event: HookEvent, payload):
+    <span class="kw">for</span> hook <span class="kw">in</span> self._registry.get(event):
+        <span class="kw">if</span> _matches_hook(hook, payload):  <span class="cm"># fnmatch matcher</span>
+            results.append(<span class="kw">await</span> self._run_xxx_hook(hook, ...))
+    <span class="kw">return</span> AggregatedHookResult(results)  <span class="cm"># .blocked = any(r.blocked)</span></code></pre>
+<div class="box r"><strong>보안:</strong> command hook의 <code>$ARGUMENTS</code>는 <code>shlex.quote()</code>로 shell-escape. <code>$(…)</code>/backtick injection 방어.</div>
+</section>
+
+<!-- ═══ 2-2. 확장 계층 ═══ -->
+<section id="p2">
+<h2 class="sh"><span class="sn y">2-2</span> 확장 계층 — 핵심부를 풍부하게</h2>
+
+<h3 id="p2-skill">Skills — On-Demand 지식</h3>
+<pre data-f="skills/loader.py"><code><span class="kw">def</span> <span class="fn">load_skill_registry</span>(cwd, *, extra_skill_dirs, extra_plugin_roots):
+    <span class="cm"># 1순위: 번들 (내장) → 2순위: ~/.openharness/skills/*.md</span>
+    <span class="cm"># 3순위: extra dirs → 4순위: 활성 플러그인의 스킬</span>
+    <span class="cm"># → SkillRegistry(dict[name → SkillDefinition])</span></code></pre>
+<p>시스템 프롬프트에 스킬 목록이 포함되고, 모델이 <code>skill(name="commit")</code> 도구를 호출하면 해당 .md 파일의 content가 ToolResult로 반환됩니다.</p>
+
+<h3 id="p2-plugin">Plugins — claude-code 호환</h3>
+<pre data-f="plugins/loader.py"><code><span class="cm"># 탐색 경로:</span>
+<span class="cm"># 1. ~/.openharness/plugins/{name}/(plugin.json 또는 .claude-plugin/plugin.json)</span>
+<span class="cm"># 2. {cwd}/.openharness/plugins/...</span>
+<span class="cm"># 3. extra_roots (ohmo 등)</span>
+<span class="cm"># 플러그인 구성: commands/*.md + hooks/hooks.json + agents/*.md + skills/*.md</span></code></pre>
+
+<h3 id="p2-mcp">MCP — 외부 도구 서버</h3>
+<pre data-f="mcp/client.py"><code><span class="kw">class</span> <span class="dc">McpClientManager</span>:
+    <span class="cm"># stdio MCP 서버에 연결, 도구/리소스 노출</span>
+    <span class="kw">async def</span> <span class="fn">connect_all</span>(self): ...     <span class="cm"># 전체 서버 연결</span>
+    <span class="kw">async def</span> <span class="fn">call_tool</span>(self, server, name, args): ...
+    <span class="kw">async def</span> <span class="fn">read_resource</span>(self, server, uri): ...
+    <span class="cm"># mcp_tool, list_mcp_resources, read_mcp_resource 도구와 연결</span></code></pre>
+</section>
+
+<!-- ═══ 2-3. Multi-Agent ═══ -->
+<section id="p3">
+<h2 class="sh"><span class="sn p">2-3</span> Multi-Agent — 루프를 복제</h2>
+<p>하나의 에이전트 루프가 또 다른 루프를 생성해서 병렬로 돌리는 구조입니다.</p>
+
+<h3 id="p3-dia">Swarm 아키텍처 다이어그램</h3>
+<div class="dia">
+<svg viewBox="0 0 700 320" xmlns="http://www.w3.org/2000/svg" font-family="'Plus Jakarta Sans',sans-serif">
+  <defs><marker id="as" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5" fill="#a78bfa"/></marker></defs>
+
+  <!-- Main agent -->
+  <rect x="240" y="20" width="220" height="60" rx="10" fill="#181c28" stroke="#34d399" stroke-width="2"/>
+  <text x="350" y="44" text-anchor="middle" fill="#34d399" font-size="12" font-weight="700">Main Agent Loop</text>
+  <text x="350" y="62" text-anchor="middle" fill="#5a6480" font-size="9">QueryEngine + run_query</text>
+
+  <!-- Agent tool call -->
+  <text x="350" y="98" text-anchor="middle" fill="#a78bfa" font-size="9" font-weight="600">agent(prompt="...", team="research")</text>
+
+  <!-- Spawn arrows -->
+  <line x1="250" y1="108" x2="120" y2="148" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#as)"/>
+  <line x1="350" y1="108" x2="350" y2="148" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#as)"/>
+  <line x1="450" y1="108" x2="580" y2="148" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#as)"/>
+
+  <!-- Sub agents -->
+  <rect x="40" y="148" width="160" height="60" rx="8" fill="#181c28" stroke="#60a5fa" stroke-width="1.5"/>
+  <text x="120" y="170" text-anchor="middle" fill="#60a5fa" font-size="10" font-weight="600">Sub-Agent #1</text>
+  <text x="120" y="186" text-anchor="middle" fill="#5a6480" font-size="8">in_process</text>
+  <text x="120" y="198" text-anchor="middle" fill="#5a6480" font-size="7.5">asyncio Task + ContextVar 격리</text>
+
+  <rect x="270" y="148" width="160" height="60" rx="8" fill="#181c28" stroke="#60a5fa" stroke-width="1.5"/>
+  <text x="350" y="170" text-anchor="middle" fill="#60a5fa" font-size="10" font-weight="600">Sub-Agent #2</text>
+  <text x="350" y="186" text-anchor="middle" fill="#5a6480" font-size="8">subprocess</text>
+  <text x="350" y="198" text-anchor="middle" fill="#5a6480" font-size="7.5">별도 프로세스</text>
+
+  <rect x="500" y="148" width="160" height="60" rx="8" fill="#181c28" stroke="#60a5fa" stroke-width="1.5"/>
+  <text x="580" y="170" text-anchor="middle" fill="#60a5fa" font-size="10" font-weight="600">Sub-Agent #3</text>
+  <text x="580" y="186" text-anchor="middle" fill="#5a6480" font-size="8">tmux pane</text>
+  <text x="580" y="198" text-anchor="middle" fill="#5a6480" font-size="7.5">시각적 터미널 패인</text>
+
+  <!-- Team registry -->
+  <rect x="200" y="240" width="300" height="50" rx="8" fill="#1f2536" stroke="#fb923c" stroke-width="1"/>
+  <text x="350" y="260" text-anchor="middle" fill="#fb923c" font-size="10" font-weight="600">TeamRegistry</text>
+  <text x="350" y="278" text-anchor="middle" fill="#5a6480" font-size="8.5">teams → agents[] → messages[] | Mailbox (파일 기반 async 큐)</text>
+
+  <line x1="120" y1="208" x2="250" y2="240" stroke="#fb923c" stroke-width="1" stroke-dasharray="3,2"/>
+  <line x1="350" y1="208" x2="350" y2="240" stroke="#fb923c" stroke-width="1" stroke-dasharray="3,2"/>
+  <line x1="580" y1="208" x2="450" y2="240" stroke="#fb923c" stroke-width="1" stroke-dasharray="3,2"/>
+</svg>
+</div>
+
+<h3 id="p3-code">코드 리뷰</h3>
+<h4>TeammateExecutor Protocol (swarm/types.py)</h4>
+<pre data-f="swarm/types.py"><code><span class="kw">class</span> <span class="dc">TeammateExecutor</span>(Protocol):
+    type: BackendType  <span class="cm"># "subprocess" | "in_process" | "tmux" | "iterm2"</span>
+    <span class="kw">async def</span> <span class="fn">spawn</span>(self, config: TeammateSpawnConfig) -> SpawnResult: ...
+    <span class="kw">async def</span> <span class="fn">send_message</span>(self, agent_id, message): ...
+    <span class="kw">async def</span> <span class="fn">shutdown</span>(self, agent_id, *, force=False): ...</code></pre>
+
+<h4>AgentTool 스폰 흐름 (tools/agent_tool.py)</h4>
+<pre data-f="agent_tool.py"><code><span class="kw">async def</span> <span class="fn">execute</span>(self, args, context):
+    agent_def = get_agent_definition(args.subagent_type)  <span class="cm"># 정의 조회</span>
+    executor = registry.get_executor(<span class="st">"in_process"</span>)       <span class="cm"># 백엔드 선택</span>
+    config = TeammateSpawnConfig(name=..., prompt=..., model=..., permissions=...)
+    result = <span class="kw">await</span> executor.spawn(config)
+    <span class="kw">if</span> args.team: get_team_registry().add_agent(args.team, result.task_id)</code></pre>
+
+<h4>BackgroundTaskManager (tasks/manager.py)</h4>
+<pre data-f="manager.py"><code><span class="kw">class</span> <span class="dc">BackgroundTaskManager</span>:
+    <span class="cm"># 인메모리 task dict + asyncio.subprocess 관리</span>
+    <span class="kw">async def</span> <span class="fn">create_shell_task</span>(self, *, command, cwd): ...   <span class="cm"># bash 백그라운드</span>
+    <span class="kw">async def</span> <span class="fn">create_agent_task</span>(self, *, prompt, cwd): ...   <span class="cm"># 에이전트 서브프로세스</span>
+    <span class="cm"># task_create/get/list/update/stop/output 도구와 연결</span></code></pre>
+
+<h4>Mailbox (swarm/mailbox.py)</h4>
+<pre data-f="mailbox.py"><code><span class="cm"># 파일 기반 async 메시지 큐</span>
+<span class="cm"># ~/.openharness/teams/{team}/agents/{agent_id}/inbox/{timestamp}_{id}.json</span>
+<span class="cm"># 원자적 쓰기: .tmp → os.rename (partial read 방지)</span>
+<span class="cm"># exclusive_file_lock으로 동시 접근 제어</span>
+MessageType = Literal[<span class="st">"user_message"</span>, <span class="st">"permission_request"</span>, <span class="st">"shutdown"</span>, ...]</code></pre>
+</section>
+
+<!-- ═══ 2-4. 인터페이스 ═══ -->
+<section id="p4">
+<h2 class="sh"><span class="sn pk">2-4</span> 인터페이스 계층 — 핵심부를 사용자에게 보여줌</h2>
+
+<h3 id="p4-dia">RuntimeBundle — 모든 것을 조립하는 지점</h3>
+<div class="dia">
+<svg viewBox="0 0 700 340" xmlns="http://www.w3.org/2000/svg" font-family="'Plus Jakarta Sans',sans-serif">
+  <!-- Components flowing into RuntimeBundle -->
+  <rect x="20" y="20" width="120" height="36" rx="6" fill="#181c28" stroke="#34d399" stroke-width="1"/>
+  <text x="80" y="42" text-anchor="middle" fill="#34d399" font-size="8.5" font-weight="600">API Client</text>
+
+  <rect x="160" y="20" width="120" height="36" rx="6" fill="#181c28" stroke="#60a5fa" stroke-width="1"/>
+  <text x="220" y="42" text-anchor="middle" fill="#60a5fa" font-size="8.5" font-weight="600">ToolRegistry</text>
+
+  <rect x="300" y="20" width="120" height="36" rx="6" fill="#181c28" stroke="#fb923c" stroke-width="1"/>
+  <text x="360" y="42" text-anchor="middle" fill="#fb923c" font-size="8.5" font-weight="600">PermissionChecker</text>
+
+  <rect x="440" y="20" width="120" height="36" rx="6" fill="#181c28" stroke="#a78bfa" stroke-width="1"/>
+  <text x="500" y="42" text-anchor="middle" fill="#a78bfa" font-size="8.5" font-weight="600">HookExecutor</text>
+
+  <rect x="580" y="20" width="100" height="36" rx="6" fill="#181c28" stroke="#fbbf24" stroke-width="1"/>
+  <text x="630" y="42" text-anchor="middle" fill="#fbbf24" font-size="8.5" font-weight="600">MCP Manager</text>
+
+  <!-- Arrows down -->
+  <line x1="80" y1="56" x2="350" y2="90" stroke="#272e42" stroke-width="1"/>
+  <line x1="220" y1="56" x2="350" y2="90" stroke="#272e42" stroke-width="1"/>
+  <line x1="360" y1="56" x2="350" y2="90" stroke="#272e42" stroke-width="1"/>
+  <line x1="500" y1="56" x2="350" y2="90" stroke="#272e42" stroke-width="1"/>
+  <line x1="630" y1="56" x2="350" y2="90" stroke="#272e42" stroke-width="1"/>
+
+  <!-- RuntimeBundle -->
+  <rect x="170" y="90" width="360" height="60" rx="10" fill="#181c28" stroke="#f472b6" stroke-width="2"/>
+  <text x="350" y="114" text-anchor="middle" fill="#f472b6" font-size="13" font-weight="700">RuntimeBundle</text>
+  <text x="350" y="132" text-anchor="middle" fill="#5a6480" font-size="9">모든 의존성을 한 곳에 조립 → QueryEngine 생성</text>
+
+  <!-- Down to QueryEngine -->
+  <line x1="350" y1="150" x2="350" y2="180" stroke="#34d399" stroke-width="1.5" marker-end="url(#ah)"/>
+
+  <rect x="220" y="180" width="260" height="44" rx="8" fill="#181c28" stroke="#34d399" stroke-width="2"/>
+  <text x="350" y="200" text-anchor="middle" fill="#34d399" font-size="11" font-weight="700">QueryEngine</text>
+  <text x="350" y="216" text-anchor="middle" fill="#5a6480" font-size="8.5">submit_message → run_query (핵심 루프)</text>
+
+  <!-- Down to outputs -->
+  <line x1="250" y1="224" x2="120" y2="270" stroke="#272e42" stroke-width="1"/>
+  <line x1="350" y1="224" x2="350" y2="270" stroke="#272e42" stroke-width="1"/>
+  <line x1="450" y1="224" x2="580" y2="270" stroke="#272e42" stroke-width="1"/>
+
+  <rect x="40" y="270" width="160" height="50" rx="8" fill="#1f2536" stroke="#60a5fa" stroke-width="1"/>
+  <text x="120" y="290" text-anchor="middle" fill="#60a5fa" font-size="9.5" font-weight="600">CLI (-p 모드)</text>
+  <text x="120" y="306" text-anchor="middle" fill="#5a6480" font-size="8">text | json | stream-json</text>
+
+  <rect x="270" y="270" width="160" height="50" rx="8" fill="#1f2536" stroke="#a78bfa" stroke-width="1"/>
+  <text x="350" y="290" text-anchor="middle" fill="#a78bfa" font-size="9.5" font-weight="600">React TUI</text>
+  <text x="350" y="306" text-anchor="middle" fill="#5a6480" font-size="8">OHJSON: 프로토콜</text>
+
+  <rect x="500" y="270" width="160" height="50" rx="8" fill="#1f2536" stroke="#fb923c" stroke-width="1"/>
+  <text x="580" y="290" text-anchor="middle" fill="#fb923c" font-size="9.5" font-weight="600">ohmo Gateway</text>
+  <text x="580" y="306" text-anchor="middle" fill="#5a6480" font-size="8">Telegram/Slack/Discord</text>
+</svg>
+</div>
+
+<h3 id="p4-code">코드 리뷰</h3>
+<h4>RuntimeBundle (ui/runtime.py)</h4>
+<pre data-f="ui/runtime.py"><code><span class="dc">@dataclass</span>
+<span class="kw">class</span> <span class="dc">RuntimeBundle</span>:
+    api_client: SupportsStreamingMessages
+    cwd: str
+    mcp_manager: McpClientManager
+    tool_registry: ToolRegistry
+    app_state: AppStateStore
+    hook_executor: HookExecutor
+    engine: QueryEngine           <span class="cm"># ← 핵심부 루프</span>
+    commands: object              <span class="cm"># 54 slash commands</span>
+    session_backend: SessionBackend</code></pre>
+<p><code>build_runtime()</code>이 settings를 읽고, API 클라이언트·도구·권한·훅·MCP를 전부 생성해서 이 번들에 담습니다. TUI든 CLI든 ohmo든 이 번들을 받아서 동작합니다.</p>
+
+<h4>BackendHost — React TUI 프로토콜 (ui/backend_host.py)</h4>
+<pre data-f="backend_host.py"><code><span class="cm"># Python 백엔드 ↔ React 프론트엔드: JSON-lines 프로토콜</span>
+_PROTOCOL_PREFIX = <span class="st">"OHJSON:"</span>
+<span class="cm"># StreamEvent → OHJSON:{...}\n 형태로 stdout에 출력</span>
+<span class="cm"># React(Ink)가 이를 파싱하여 TUI 렌더링</span>
+<span class="cm"># 프론트엔드 → 백엔드: stdin으로 FrontendRequest JSON 전송</span></code></pre>
+
+<h4>CommandRegistry (commands/registry.py)</h4>
+<pre data-f="registry.py"><code><span class="dc">@dataclass</span>
+<span class="kw">class</span> <span class="dc">CommandResult</span>:
+    message: str | None = None
+    should_exit: bool = False
+
+<span class="cm"># 54개 slash commands: /help, /commit, /plan, /resume, /compact,</span>
+<span class="cm"># /memory, /permissions, /model, /clear, /config, /theme, ...</span>
+<span class="cm"># + 플러그인이 추가하는 commands/*.md</span></code></pre>
+</section>
+
+<!-- Summary -->
+<section>
+<h2 class="sh"><span class="sn g">∴</span> 전체 구조 요약</h2>
+<div class="dia">
+<svg viewBox="0 0 700 280" xmlns="http://www.w3.org/2000/svg" font-family="'Plus Jakarta Sans',sans-serif">
+  <!-- Core -->
+  <rect x="150" y="90" width="400" height="100" rx="14" fill="none" stroke="#34d399" stroke-width="2"/>
+  <text x="350" y="82" text-anchor="middle" fill="#34d399" font-size="11" font-weight="700">핵심부 (CORE)</text>
+
+  <rect x="170" y="106" width="110" height="68" rx="8" fill="#181c28" stroke="#34d399" stroke-width="1"/>
+  <text x="225" y="130" text-anchor="middle" fill="#34d399" font-size="16">🔄</text>
+  <text x="225" y="150" text-anchor="middle" fill="#34d399" font-size="10" font-weight="700">The Loop</text>
+  <text x="225" y="164" text-anchor="middle" fill="#5a6480" font-size="7.5">run_query</text>
+
+  <rect x="295" y="106" width="110" height="68" rx="8" fill="#181c28" stroke="#60a5fa" stroke-width="1"/>
+  <text x="350" y="130" text-anchor="middle" fill="#60a5fa" font-size="16">🔧</text>
+  <text x="350" y="150" text-anchor="middle" fill="#60a5fa" font-size="10" font-weight="700">Tool Exec</text>
+  <text x="350" y="164" text-anchor="middle" fill="#5a6480" font-size="7.5">6단계 체인</text>
+
+  <rect x="420" y="106" width="110" height="68" rx="8" fill="#181c28" stroke="#fb923c" stroke-width="1"/>
+  <text x="475" y="130" text-anchor="middle" fill="#fb923c" font-size="16">🧠</text>
+  <text x="475" y="150" text-anchor="middle" fill="#fb923c" font-size="10" font-weight="700">Context</text>
+  <text x="475" y="164" text-anchor="middle" fill="#5a6480" font-size="7.5">7-Layer + Compact</text>
+
+  <!-- Periphery labels -->
+  <text x="70" y="144" text-anchor="middle" fill="#f87171" font-size="9" font-weight="600">🛡️ 안전</text>
+  <text x="70" y="158" text-anchor="middle" fill="#5a6480" font-size="7.5">Permission + Hook</text>
+  <line x1="110" y1="145" x2="150" y2="145" stroke="#f87171" stroke-width="1" stroke-dasharray="3,2"/>
+
+  <text x="350" y="28" text-anchor="middle" fill="#fbbf24" font-size="9" font-weight="600">🔧 확장</text>
+  <text x="350" y="42" text-anchor="middle" fill="#5a6480" font-size="7.5">Skills + Plugins + MCP</text>
+  <line x1="350" y1="48" x2="350" y2="90" stroke="#fbbf24" stroke-width="1" stroke-dasharray="3,2"/>
+
+  <text x="630" y="144" text-anchor="middle" fill="#a78bfa" font-size="9" font-weight="600">🤝 Multi-Agent</text>
+  <text x="630" y="158" text-anchor="middle" fill="#5a6480" font-size="7.5">Swarm + Tasks</text>
+  <line x1="550" y1="145" x2="590" y2="145" stroke="#a78bfa" stroke-width="1" stroke-dasharray="3,2"/>
+
+  <text x="350" y="222" text-anchor="middle" fill="#f472b6" font-size="9" font-weight="600">🖥️ 인터페이스</text>
+  <text x="350" y="236" text-anchor="middle" fill="#5a6480" font-size="7.5">CLI + React TUI + ohmo</text>
+  <line x1="350" y1="190" x2="350" y2="214" stroke="#f472b6" stroke-width="1" stroke-dasharray="3,2"/>
+
+  <text x="350" y="268" text-anchor="middle" fill="#5a6480" font-size="9">주변부는 핵심부를 <tspan fill="#tb" font-weight="600">보호</tspan> · <tspan fill="#tb" font-weight="600">확장</tspan> · <tspan fill="#tb" font-weight="600">복제</tspan> · <tspan fill="#tb" font-weight="600">표시</tspan>합니다</text>
+</svg>
+</div>
+</section>
+
+<footer>
+  <strong style="color:var(--g)">oh</strong> — OpenHarness Agent Architecture Complete Analysis<br>
+  <span>소스 기반: v0.1.2 (2026-04-06) · HKUDS · MIT License</span>
+</footer>
+</main>
+</body>
+</html>

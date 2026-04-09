@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpenHarness — 종합 매뉴얼</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,600;1,400&family=Playfair+Display:wght@700;800&family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0d12;
+  --bg2: #0e1219;
+  --surface: #141920;
+  --surface2: #1a2130;
+  --surface3: #212938;
+  --border: #2a3345;
+  --border-light: #354058;
+  --text: #c8cdd8;
+  --text-bright: #e4e8f0;
+  --text-dim: #6a7590;
+  --accent: #4ade80;
+  --accent-dim: rgba(74,222,128,0.12);
+  --blue: #60a5fa;
+  --blue-dim: rgba(96,165,250,0.12);
+  --orange: #fb923c;
+  --orange-dim: rgba(251,146,60,0.10);
+  --pink: #f472b6;
+  --pink-dim: rgba(244,114,182,0.10);
+  --yellow: #fbbf24;
+  --yellow-dim: rgba(251,191,36,0.10);
+  --red: #f87171;
+  --purple: #a78bfa;
+  --purple-dim: rgba(167,139,250,0.10);
+  --code-bg: #0c1017;
+  --toc-w: 270px;
+  --radius: 10px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;font-size:14.5px;scroll-padding-top:24px}
+body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--text);line-height:1.78;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px}
+.toc{position:fixed;top:0;left:0;width:var(--toc-w);height:100vh;background:var(--bg2);border-right:1px solid var(--border);overflow-y:auto;z-index:100;padding:28px 0 40px}
+.toc-logo{text-align:center;padding:0 20px 24px;border-bottom:1px solid var(--border);margin-bottom:16px}
+.toc-logo h2{font-family:'Playfair Display',serif;font-size:1.6rem;color:var(--accent);letter-spacing:1px}
+.toc-logo .sub{font-size:0.68rem;color:var(--text-dim);letter-spacing:2.5px;text-transform:uppercase;display:block;margin-top:2px}
+.toc a{display:block;padding:5px 22px 5px 26px;font-size:0.78rem;color:var(--text-dim);text-decoration:none;border-left:2px solid transparent;transition:all .18s}
+.toc a:hover{color:var(--accent);border-left-color:var(--accent);background:var(--accent-dim)}
+.toc .group{color:var(--text-bright);font-weight:700;font-size:0.65rem;letter-spacing:2px;text-transform:uppercase;margin-top:18px;padding-bottom:3px;pointer-events:none}
+.toc .group:hover{background:none;border-left-color:transparent}
+main{margin-left:var(--toc-w);max-width:840px;padding:48px 52px 140px}
+.hero{text-align:center;padding:40px 0 48px;border-bottom:1px solid var(--border);margin-bottom:52px}
+.hero .chip{display:inline-block;font-size:0.65rem;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:var(--accent);background:var(--accent-dim);padding:4px 16px;border-radius:99px;margin-bottom:16px}
+.hero h1{font-family:'Playfair Display',serif;font-size:2.8rem;color:#fff;line-height:1.15;margin-bottom:10px}
+.hero h1 span{color:var(--accent)}
+.hero .desc{color:var(--text-dim);font-size:1rem;font-weight:300;max-width:540px;margin:0 auto}
+.hero .tags{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:24px}
+.hero .tag{font-size:0.72rem;font-weight:500;padding:4px 12px;border-radius:6px;border:1px solid var(--border)}
+.hero .tag.g{color:var(--accent);border-color:rgba(74,222,128,.25)}
+.hero .tag.b{color:var(--blue);border-color:rgba(96,165,250,.25)}
+.hero .tag.o{color:var(--orange);border-color:rgba(251,146,60,.25)}
+.hero .tag.p{color:var(--purple);border-color:rgba(167,139,250,.25)}
+section{margin-bottom:56px}
+.sec-head{font-family:'Playfair Display',serif;font-size:1.65rem;color:#fff;padding-bottom:10px;border-bottom:2px solid var(--border);margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.sec-num{font-family:'JetBrains Mono',monospace;font-size:0.72rem;font-weight:600;color:var(--accent);background:var(--accent-dim);padding:2px 10px;border-radius:4px}
+h3{font-size:1.1rem;font-weight:600;color:var(--text-bright);margin:28px 0 8px}
+h4{font-size:0.95rem;font-weight:600;color:var(--text-bright);margin:20px 0 6px}
+p{margin-bottom:12px}
+strong{color:var(--text-bright)}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:var(--radius);padding:18px 22px;overflow-x:auto;margin:12px 0 16px;font-family:'JetBrains Mono',monospace;font-size:0.78rem;line-height:1.75;color:#a8b2c8;position:relative}
+pre[data-title]::before{content:attr(data-title);position:absolute;top:6px;right:12px;font-size:0.6rem;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase}
+code{font-family:'JetBrains Mono',monospace;font-size:0.82em;background:var(--surface2);padding:1.5px 6px;border-radius:4px;color:var(--accent)}
+pre code{background:none;padding:0;color:inherit}
+.kw{color:#c792ea}.st{color:#c3e88d}.cm{color:#546e7a;font-style:italic}.fn{color:#82aaff}.nb{color:#f78c6c}.op{color:#89ddff}.dc{color:#ffcb6b}.tp{color:#f07178}.var{color:#eeffff}
+.tw{overflow-x:auto;margin:12px 0 16px;border:1px solid var(--border);border-radius:var(--radius)}
+table{width:100%;border-collapse:collapse;font-size:0.82rem}
+thead{background:var(--surface2)}
+th{text-align:left;padding:10px 16px;font-weight:600;font-size:0.72rem;letter-spacing:.5px;text-transform:uppercase;color:var(--text-bright);border-bottom:1px solid var(--border)}
+td{padding:9px 16px;border-bottom:1px solid var(--border);vertical-align:top}
+tr:last-child td{border-bottom:none}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;transition:border-color .2s,transform .2s}
+.card:hover{border-color:var(--accent);transform:translateY(-1px)}
+.card .ic{font-size:1.4rem;margin-bottom:6px}
+.card h4{margin:0 0 4px;font-size:0.9rem}
+.card p{font-size:0.8rem;color:var(--text-dim);margin:0;line-height:1.5}
+.note{background:var(--accent-dim);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:14px 18px;margin:14px 0;font-size:0.86rem}
+.warn{background:var(--orange-dim);border-left:3px solid var(--orange);border-radius:0 8px 8px 0;padding:14px 18px;margin:14px 0;font-size:0.86rem}
+.info{background:var(--blue-dim);border-left:3px solid var(--blue);border-radius:0 8px 8px 0;padding:14px 18px;margin:14px 0;font-size:0.86rem}
+.tree{background:var(--code-bg);border:1px solid var(--border);border-radius:var(--radius);padding:18px 22px;font-family:'JetBrains Mono',monospace;font-size:0.75rem;line-height:1.85;color:#78849c;margin:12px 0 16px}
+.tree .d{color:var(--blue);font-weight:600}
+.tree .c{color:var(--text-dim);margin-left:8px}
+.flow{display:flex;align-items:center;gap:0;margin:20px 0;overflow-x:auto;padding:12px 0}
+.flow-n{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 16px;text-align:center;min-width:90px;flex-shrink:0}
+.flow-n .l{font-size:0.65rem;color:var(--text-dim)}
+.flow-n .v{font-size:0.78rem;font-weight:600;color:#fff}
+.flow-a{color:var(--accent);font-size:1.1rem;flex-shrink:0;padding:0 3px}
+ul,ol{padding-left:22px;margin:6px 0 14px}
+li{margin-bottom:4px;font-size:0.9rem}
+li::marker{color:var(--accent)}
+footer{text-align:center;padding:36px 0;border-top:1px solid var(--border);color:var(--text-dim);font-size:0.75rem}
+@media(max-width:960px){
+  .toc{display:none}
+  main{margin-left:0;padding:24px 16px 80px}
+  .cards{grid-template-columns:1fr}
+  .hero h1{font-size:2rem}
+}
+</style>
+</head>
+<body>
+
+<nav class="toc">
+<div class="toc-logo"><h2>oh</h2><span class="sub">OpenHarness 종합 매뉴얼</span></div>
+<a class="group">개요</a>
+<a href="#what-is">Agent Harness 개념</a>
+<a href="#features">5대 핵심 기능</a>
+<a class="group">설치 & 설정</a>
+<a href="#prereq">사전 요구사항</a>
+<a href="#install">설치 방법</a>
+<a href="#setup">Setup Workflow</a>
+<a href="#providers">Provider 호환성</a>
+<a href="#envvars">환경변수</a>
+<a class="group">아키텍처 (코드 레벨)</a>
+<a href="#dir-structure">디렉토리 구조</a>
+<a href="#engine">engine/ — Agent Loop</a>
+<a href="#api-client">api/ — API 클라이언트</a>
+<a href="#tools">tools/ — 도구 시스템</a>
+<a href="#permissions-code">permissions/ — 권한 체커</a>
+<a href="#hooks">hooks/ — 라이프사이클 훅</a>
+<a href="#skills-code">skills/ — 스킬 로더</a>
+<a href="#memory-code">memory/ — 영속 메모리</a>
+<a href="#prompts-code">prompts/ — 프롬프트 조립</a>
+<a href="#compact">services/compact — Auto-Compact</a>
+<a href="#coordinator">coordinator/ — Multi-Agent</a>
+<a href="#config-code">config/ — 설정 스키마</a>
+<a class="group">CLI 레퍼런스</a>
+<a href="#cli-flags">옵션 & 플래그</a>
+<a href="#cli-sub">서브커맨드</a>
+<a href="#cli-noninteractive">비대화형 모드</a>
+<a class="group">ohmo Personal Agent</a>
+<a href="#ohmo">개요 & 워크스페이스</a>
+<a href="#ohmo-code">코드 구조</a>
+<a class="group">확장하기</a>
+<a href="#ext-tool">커스텀 도구</a>
+<a href="#ext-skill">커스텀 스킬</a>
+<a href="#ext-plugin">커스텀 플러그인</a>
+<a class="group">테스트 & 기여</a>
+<a href="#tests">테스트 스위트</a>
+<a href="#contrib">기여 가이드</a>
+</nav>
+
+<main>
+
+<div class="hero" id="top">
+  <div class="chip">HKUDS · MIT License · v0.1.2</div>
+  <h1><span>oh</span> — OpenHarness</h1>
+  <p class="desc">경량 오픈소스 Agent 인프라 프레임워크.<br>Tool-use, Skills, Memory, Multi-Agent Coordination을 하나의 커맨드로.</p>
+  <div class="tags">
+    <span class="tag g">Python ≥ 3.10</span>
+    <span class="tag b">43+ Tools</span>
+    <span class="tag o">114 Tests Passing</span>
+    <span class="tag p">React/Ink TUI</span>
+  </div>
+</div>
+
+<!-- 01 -->
+<section id="what-is">
+<h2 class="sec-head"><span class="sec-num">01</span> Agent Harness란?</h2>
+<p><strong>Agent Harness</strong>는 LLM을 실질적인 에이전트로 만들기 위해 감싸는 인프라 계층입니다. 모델은 <em>지능</em>을, Harness는 <strong>손(도구)</strong>, <strong>눈(관찰)</strong>, <strong>기억(메모리)</strong>, <strong>안전 경계(권한)</strong>를 제공합니다.</p>
+<div class="note"><strong>핵심 등식:</strong> Agent = LLM + Tools + Knowledge + Observation + Action + Permissions</div>
+<p>OpenHarness는 Claude Code의 harness 구조(CLAUDE.md, skills, hooks, /compact 등)를 Python으로 오픈소스 재구현한 프로젝트입니다. OpenClaw, nanobot, Cursor 등 다른 CLI 에이전트와도 통합 가능하도록 설계되었습니다.</p>
+<ul>
+  <li><strong>Understand</strong> — 프로덕션 AI 에이전트가 내부적으로 어떻게 동작하는지 학습</li>
+  <li><strong>Experiment</strong> — 최신 도구, 스킬, 에이전트 조율 패턴 실험</li>
+  <li><strong>Extend</strong> — 커스텀 플러그인, 프로바이더, 도메인 지식으로 확장</li>
+  <li><strong>Build</strong> — 검증된 아키텍처 위에 특화 에이전트 구축</li>
+</ul>
+</section>
+
+<!-- 02 -->
+<section id="features">
+<h2 class="sec-head"><span class="sec-num">02</span> 5대 핵심 기능</h2>
+<div class="cards">
+  <div class="card"><div class="ic">🔄</div><h4>Agent Loop</h4><p>스트리밍 Tool-Call 사이클, 지수 백오프 재시도 (MAX_RETRIES=3, 429/500/502/503/529), 병렬 도구 실행, CostTracker 토큰 추적</p></div>
+  <div class="card"><div class="ic">🔧</div><h4>Harness Toolkit</h4><p>43+ 내장 도구 (File I/O, Shell, Search, Web, MCP, Agent, Task, Cron). Pydantic 입력 검증, JSON Schema 자동 생성</p></div>
+  <div class="card"><div class="ic">🧠</div><h4>Context & Memory</h4><p>CLAUDE.md 탐색·주입, Auto-Compact (microcompact + LLM 요약), MEMORY.md 영속 메모리, 세션 Resume</p></div>
+  <div class="card"><div class="ic">🛡️</div><h4>Governance</h4><p>3단계 권한 모드, 경로 glob 규칙, 커맨드 거부 리스트, Pre/PostToolUse 훅, 센시티브 경로 자동 차단</p></div>
+  <div class="card"><div class="ic">🤝</div><h4>Swarm Coordination</h4><p>서브에이전트 스폰 (AgentTool), TeamRegistry, 백그라운드 태스크 (create/get/list/update/stop/output)</p></div>
+  <div class="card"><div class="ic">🖥️</div><h4>React TUI</h4><p>React/Ink 터미널 UI — 커맨드 피커, 권한 다이얼로그, 세션 Resume, 키보드 단축키, 스피너</p></div>
+</div>
+</section>
+
+<!-- 03 -->
+<section id="install">
+<h2 class="sec-head"><span class="sec-num">03</span> 설치 &amp; 설정</h2>
+
+<h3 id="prereq">사전 요구사항</h3>
+<ul>
+  <li><strong>Python 3.10+</strong> 및 <code>uv</code> (astral.sh)</li>
+  <li><strong>Node.js 18+</strong> (선택 — React TUI용)</li>
+  <li>LLM API Key (Anthropic, OpenAI, Kimi 등)</li>
+</ul>
+
+<h3>원클릭 설치</h3>
+<pre data-title="bash"><code>curl -fsSL https://raw.githubusercontent.com/HKUDS/OpenHarness/main/scripts/install.sh | bash</code></pre>
+<p>스크립트가 자동으로: OS 감지 → Python/Node 버전 검증 → pip 설치 → TUI npm install → <code>~/.openharness/</code> 생성 → <code>oh --version</code> 확인.</p>
+<div class="tw"><table>
+<thead><tr><th>플래그</th><th>설명</th></tr></thead>
+<tbody>
+<tr><td><code>--from-source</code></td><td>GitHub 클론 후 <code>pip install -e .</code></td></tr>
+<tr><td><code>--with-channels</code></td><td>IM 채널 의존성 함께 설치 (slack-sdk, telegram, discord)</td></tr>
+</tbody>
+</table></div>
+
+<h3>수동 설치</h3>
+<pre data-title="bash"><code>git clone https://github.com/HKUDS/OpenHarness.git
+cd OpenHarness
+uv sync --extra dev
+
+<span class="cm"># Quick Demo</span>
+ANTHROPIC_API_KEY=your_key uv run oh -p <span class="st">"Inspect this repo and list top 3 refactors"</span>
+
+<span class="cm"># Kimi 백엔드 예시</span>
+<span class="kw">export</span> ANTHROPIC_BASE_URL=https://api.moonshot.cn/anthropic
+<span class="kw">export</span> ANTHROPIC_API_KEY=your_kimi_key
+<span class="kw">export</span> ANTHROPIC_MODEL=kimi-k2.5
+uv run oh</code></pre>
+
+<h3 id="setup">Setup Workflow</h3>
+<p><code>oh setup</code>은 대화형 워크플로우 기반 설정입니다:</p>
+<ol>
+  <li>워크플로우 선택 (Anthropic-Compatible / Claude Subscription / OpenAI-Compatible / Codex / Copilot)</li>
+  <li>백엔드 프리셋 선택 (Claude, Kimi, GLM, MiniMax 등)</li>
+  <li>인증 → 모델 선택 → 프로파일 저장 &amp; 활성화</li>
+</ol>
+<pre data-title="bash"><code>uv run oh setup              <span class="cm"># 대화형 설정</span>
+oh provider list             <span class="cm"># 프로파일 목록</span>
+oh provider use codex        <span class="cm"># 프로파일 전환</span></code></pre>
+
+<h3 id="providers">Provider 호환성</h3>
+<div class="tw"><table>
+<thead><tr><th>워크플로우</th><th>포맷</th><th>백엔드 예시</th></tr></thead>
+<tbody>
+<tr><td><strong>Anthropic-Compatible</strong></td><td>Anthropic</td><td>Claude, Kimi, GLM, MiniMax</td></tr>
+<tr><td><strong>Claude Subscription</strong></td><td>Bridge</td><td>~/.claude/.credentials.json</td></tr>
+<tr><td><strong>OpenAI-Compatible</strong></td><td>OpenAI</td><td>OpenAI, OpenRouter, DashScope, DeepSeek, Groq, Ollama</td></tr>
+<tr><td><strong>Codex Subscription</strong></td><td>Bridge</td><td>~/.codex/auth.json</td></tr>
+<tr><td><strong>GitHub Copilot</strong></td><td>OAuth</td><td>GitHub Device Flow</td></tr>
+</tbody>
+</table></div>
+<div class="info"><code>oh provider add</code>로 커스텀 엔드포인트 등록 시 프로파일별 크레덴셜 분리 가능.</div>
+
+<h3 id="envvars">환경변수</h3>
+<div class="tw"><table>
+<thead><tr><th>변수</th><th>용도</th></tr></thead>
+<tbody>
+<tr><td><code>ANTHROPIC_API_KEY</code></td><td>Anthropic / Anthropic-Compatible API 키</td></tr>
+<tr><td><code>ANTHROPIC_BASE_URL</code></td><td>커스텀 엔드포인트 URL</td></tr>
+<tr><td><code>ANTHROPIC_MODEL</code></td><td>모델 지정</td></tr>
+<tr><td><code>OPENAI_API_KEY</code></td><td>OpenAI-Compatible 사용 시</td></tr>
+<tr><td><code>OPENHARNESS_API_FORMAT</code></td><td>anthropic / openai / copilot</td></tr>
+</tbody>
+</table></div>
+</section>
+
+<!-- 04 -->
+<section id="architecture">
+<h2 class="sec-head"><span class="sec-num">04</span> 아키텍처 — 코드 레벨 분석</h2>
+
+<h3 id="dir-structure">디렉토리 구조</h3>
+<div class="tree">
+<span class="d">src/openharness/</span><br>
+├─ <span class="d">engine/</span><span class="c">Agent Loop — query_engine.py, query.py, messages.py, stream_events.py, cost_tracker.py</span><br>
+├─ <span class="d">api/</span><span class="c">API 클라이언트 — client.py (Anthropic), openai_client.py, copilot_client.py, codex_client.py</span><br>
+├─ <span class="d">tools/</span><span class="c">43개 도구 — base.py (BaseTool, ToolRegistry) + 각 *_tool.py</span><br>
+├─ <span class="d">permissions/</span><span class="c">modes.py (3 PermissionMode) + checker.py (PermissionChecker)</span><br>
+├─ <span class="d">hooks/</span><span class="c">schemas.py (4 Hook타입) + executor.py (HookExecutor) + loader.py, hot_reload.py</span><br>
+├─ <span class="d">skills/</span><span class="c">loader.py, registry.py, types.py — .md 기반 on-demand 지식</span><br>
+├─ <span class="d">plugins/</span><span class="c">loader.py — claude-code 플러그인 호환</span><br>
+├─ <span class="d">memory/</span><span class="c">memdir.py, manager.py, scan.py, search.py, paths.py, types.py</span><br>
+├─ <span class="d">prompts/</span><span class="c">system_prompt.py, claudemd.py, context.py, environment.py</span><br>
+├─ <span class="d">services/</span><span class="c">compact/ (auto-compact), token_estimation.py, session_storage.py, cron.py</span><br>
+├─ <span class="d">coordinator/</span><span class="c">TeamRegistry, TeamRecord, agent_definitions.py</span><br>
+├─ <span class="d">tasks/</span><span class="c">manager.py, local_agent_task.py, local_shell_task.py</span><br>
+├─ <span class="d">config/</span><span class="c">settings.py (Pydantic), paths.py, schema.py</span><br>
+├─ <span class="d">mcp/</span><span class="c">client.py, config.py, types.py</span><br>
+├─ <span class="d">auth/</span><span class="c">manager.py, external.py, storage.py, flows.py</span><br>
+├─ <span class="d">ui/</span><span class="c">React TUI backend + frontend</span><br>
+├─ <span class="d">bridge/</span><span class="c">CLI subscription bridge (Claude/Codex)</span><br>
+├─ <span class="d">commands/</span><span class="c">54 slash commands</span><br>
+├─ <span class="d">sandbox/</span><span class="c">OS-level sandboxing</span><br>
+├─ <span class="d">voice/</span><span class="c">음성 입력 (STT)</span><br>
+└─ <span class="d">themes/</span><span class="c">TUI 테마 시스템</span>
+</div>
+
+<h3 id="engine">engine/ — Agent Loop (심장부)</h3>
+<p>모델이 <strong>무엇</strong>을 할지 결정하면, engine이 <strong>어떻게</strong> — 안전하고 효율적으로 — 실행합니다.</p>
+
+<h4>QueryEngine (query_engine.py)</h4>
+<pre data-title="python"><code><span class="kw">class</span> <span class="dc">QueryEngine</span>:
+    <span class="cm">"""대화 히스토리 소유 + tool-aware 모델 루프 관리"""</span>
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, *,
+        api_client: <span class="tp">SupportsStreamingMessages</span>,   <span class="cm"># Protocol — 테스트 mock 가능</span>
+        tool_registry: <span class="tp">ToolRegistry</span>,              <span class="cm"># 등록된 43+ 도구</span>
+        permission_checker: <span class="tp">PermissionChecker</span>,    <span class="cm"># 권한 검사기</span>
+        cwd: str | Path,
+        model: str,
+        system_prompt: str,
+        max_tokens: int = <span class="nb">4096</span>,
+        max_turns: int | None = <span class="nb">8</span>,                <span class="cm"># 한 입력당 최대 턴</span>
+        hook_executor: <span class="tp">HookExecutor</span> | None = None,
+    ):
+        self._messages: list[<span class="tp">ConversationMessage</span>] = []
+        self._cost_tracker = <span class="fn">CostTracker</span>()</code></pre>
+
+<h4>run_query (query.py) — 핵심 루프</h4>
+<pre data-title="python"><code><span class="kw">async def</span> <span class="fn">run_query</span>(context: <span class="tp">QueryContext</span>, messages) -> <span class="tp">AsyncIterator</span>[...]:
+    <span class="cm">"""Auto-compaction → API stream → tool 실행 → 루프"""</span>
+    compact_state = <span class="fn">AutoCompactState</span>()
+    turn_count = <span class="nb">0</span>
+
+    <span class="kw">while</span> context.max_turns <span class="kw">is</span> None <span class="kw">or</span> turn_count &lt; context.max_turns:
+        turn_count += <span class="nb">1</span>
+
+        <span class="cm"># ① Auto-compact check (microcompact → full LLM 요약)</span>
+        messages, was_compacted = <span class="kw">await</span> <span class="fn">auto_compact_if_needed</span>(...)
+
+        <span class="cm"># ② API 스트리밍 호출</span>
+        <span class="kw">async for</span> event <span class="kw">in</span> context.api_client.<span class="fn">stream_message</span>(...):
+            <span class="kw">if</span> isinstance(event, <span class="tp">ApiTextDeltaEvent</span>):
+                <span class="kw">yield</span> <span class="fn">AssistantTextDelta</span>(text=event.text), None
+            <span class="kw">elif</span> isinstance(event, <span class="tp">ApiRetryEvent</span>):
+                <span class="kw">yield</span> <span class="fn">StatusEvent</span>(<span class="st">f"Retrying in {event.delay_seconds}s..."</span>)
+
+        <span class="cm"># ③ stop_reason != "tool_use" → 종료</span>
+        <span class="kw">if</span> stop_reason != <span class="st">"tool_use"</span>:
+            <span class="kw">yield</span> <span class="fn">AssistantTurnComplete</span>(...); <span class="kw">return</span>
+
+        <span class="cm"># ④ Permission → Hook → Execute → Hook → Result</span>
+        <span class="kw">for</span> tool_call <span class="kw">in</span> tool_uses:
+            result = <span class="kw">await</span> <span class="fn">_execute_single_tool</span>(tool_call, context)
+
+        messages.<span class="fn">append</span>(tool_results)  <span class="cm"># 루프 계속</span></code></pre>
+
+<h4>실행 흐름</h4>
+<div class="flow">
+  <div class="flow-n"><div class="l">입력</div><div class="v">User Prompt</div></div>
+  <div class="flow-a">→</div>
+  <div class="flow-n"><div class="l">인터페이스</div><div class="v">CLI / TUI</div></div>
+  <div class="flow-a">→</div>
+  <div class="flow-n"><div class="l">엔진</div><div class="v">QueryEngine</div></div>
+  <div class="flow-a">→</div>
+  <div class="flow-n"><div class="l">API</div><div class="v">stream_message</div></div>
+  <div class="flow-a">→</div>
+  <div class="flow-n"><div class="l">분기</div><div class="v">tool_use?</div></div>
+  <div class="flow-a">→</div>
+  <div class="flow-n"><div class="l">검증</div><div class="v">Perm+Hook</div></div>
+  <div class="flow-a">→</div>
+  <div class="flow-n"><div class="l">실행</div><div class="v">Tool.execute</div></div>
+  <div class="flow-a">↩</div>
+</div>
+
+<h4>StreamEvent 타입 (stream_events.py)</h4>
+<div class="tw"><table>
+<thead><tr><th>이벤트</th><th>역할</th></tr></thead>
+<tbody>
+<tr><td><code>AssistantTextDelta</code></td><td>모델 텍스트 청크 (스트리밍)</td></tr>
+<tr><td><code>AssistantTurnComplete</code></td><td>모델 턴 종료 — 전체 메시지 + usage</td></tr>
+<tr><td><code>ToolExecutionStarted / Completed</code></td><td>도구 실행 시작/완료</td></tr>
+<tr><td><code>StatusEvent</code></td><td>재시도, compact 등 상태</td></tr>
+<tr><td><code>ErrorEvent</code></td><td>오류 발생</td></tr>
+</tbody>
+</table></div>
+
+<h3 id="api-client">api/ — API 클라이언트</h3>
+<pre data-title="python"><code><span class="kw">class</span> <span class="dc">SupportsStreamingMessages</span>(<span class="tp">Protocol</span>):
+    <span class="cm">"""테스트 mock / 다중 프로바이더 호환용 Protocol"""</span>
+    <span class="kw">async def</span> <span class="fn">stream_message</span>(self, req: <span class="tp">ApiMessageRequest</span>) -> <span class="tp">AsyncIterator</span>[<span class="tp">ApiStreamEvent</span>]: ...
+
+<span class="cm"># 구현체 4개:</span>
+<span class="cm"># client.py        → AsyncAnthropic 래퍼 (Anthropic-Compatible)</span>
+<span class="cm"># openai_client.py → OpenAI /v1/chat/completions</span>
+<span class="cm"># copilot_client.py → GitHub Copilot OAuth</span>
+<span class="cm"># codex_client.py  → Codex subscription bridge</span></code></pre>
+<div class="info"><strong>Retry:</strong> MAX_RETRIES=3, BASE_DELAY=1s, MAX_DELAY=30s, 지수 백오프. 대상: <code>{429, 500, 502, 503, 529}</code></div>
+
+<h3 id="tools">tools/ — 도구 시스템</h3>
+<h4>BaseTool &amp; ToolRegistry (base.py)</h4>
+<pre data-title="python"><code><span class="kw">class</span> <span class="dc">BaseTool</span>(<span class="tp">ABC</span>):
+    name: str
+    description: str
+    input_model: type[<span class="tp">BaseModel</span>]         <span class="cm"># Pydantic → 자동 JSON Schema</span>
+
+    <span class="kw">async def</span> <span class="fn">execute</span>(self, args, ctx: <span class="tp">ToolExecutionContext</span>) -> <span class="tp">ToolResult</span>: ...
+    <span class="kw">def</span> <span class="fn">is_read_only</span>(self, args) -> bool: ...  <span class="cm"># 권한 판단용</span>
+    <span class="kw">def</span> <span class="fn">to_api_schema</span>(self) -> dict: ...       <span class="cm"># Anthropic API 형식 변환</span>
+
+<span class="kw">class</span> <span class="dc">ToolRegistry</span>:
+    <span class="kw">def</span> <span class="fn">register</span>(self, tool): ...
+    <span class="kw">def</span> <span class="fn">get</span>(self, name) -> BaseTool | None: ...
+    <span class="kw">def</span> <span class="fn">to_api_schema</span>(self) -> list[dict]: ...  <span class="cm"># 전체 도구 → API 전달</span></code></pre>
+
+<h4>전체 도구 목록 (43+)</h4>
+<div class="tw"><table>
+<thead><tr><th>카테고리</th><th>도구</th><th>설명</th></tr></thead>
+<tbody>
+<tr><td><strong>File I/O</strong></td><td>bash, read_file, write_file, edit_file, glob, grep</td><td>파일 조작 + 권한 검사</td></tr>
+<tr><td><strong>Search</strong></td><td>web_fetch, web_search, tool_search, lsp</td><td>웹·코드 검색</td></tr>
+<tr><td><strong>Notebook</strong></td><td>notebook_edit</td><td>Jupyter 셀 편집</td></tr>
+<tr><td><strong>Agent</strong></td><td>agent, send_message, team_create/delete</td><td>서브에이전트 스폰·협업</td></tr>
+<tr><td><strong>Task</strong></td><td>task_create/get/list/update/stop/output</td><td>백그라운드 태스크</td></tr>
+<tr><td><strong>MCP</strong></td><td>mcp_tool, list/read_mcp_resource, mcp_auth</td><td>Model Context Protocol</td></tr>
+<tr><td><strong>Mode</strong></td><td>enter/exit_plan_mode, enter/exit_worktree</td><td>워크플로우 모드 전환</td></tr>
+<tr><td><strong>Cron</strong></td><td>cron_create/list/delete/toggle, remote_trigger</td><td>스케줄 실행</td></tr>
+<tr><td><strong>Meta</strong></td><td>skill, config, brief, sleep, ask_user, todo_write</td><td>지식 로딩, 설정, 상호작용</td></tr>
+</tbody>
+</table></div>
+
+<h3 id="permissions-code">permissions/ — 권한 체커</h3>
+<h4>3단계 PermissionMode</h4>
+<div class="tw"><table>
+<thead><tr><th>모드</th><th>동작</th><th>용도</th></tr></thead>
+<tbody>
+<tr><td><code>DEFAULT</code></td><td>쓰기/실행 전 사용자 확인</td><td>일상 개발</td></tr>
+<tr><td><code>FULL_AUTO</code></td><td>모든 것 자동 허용</td><td>샌드박스</td></tr>
+<tr><td><code>PLAN</code></td><td>모든 쓰기 차단</td><td>리팩토링 검토</td></tr>
+</tbody>
+</table></div>
+
+<h4>PermissionChecker (checker.py)</h4>
+<pre data-title="python"><code><span class="cm"># 하드코딩된 센시티브 경로 — 항상 거부 (프롬프트 인젝션 방어)</span>
+SENSITIVE_PATH_PATTERNS = (
+    <span class="st">"*/.ssh/*"</span>, <span class="st">"*/.aws/credentials"</span>, <span class="st">"*/.aws/config"</span>,
+    <span class="st">"*/.config/gcloud/*"</span>, <span class="st">"*/.azure/*"</span>, <span class="st">"*/.gnupg/*"</span>,
+    <span class="st">"*/.docker/config.json"</span>, <span class="st">"*/.kube/config"</span>,
+    <span class="st">"*/.openharness/credentials.json"</span>,
+    <span class="st">"*/.openharness/copilot_auth.json"</span>,
+)
+
+<span class="kw">class</span> <span class="dc">PermissionChecker</span>:
+    <span class="kw">def</span> <span class="fn">evaluate</span>(self, tool_name, *, is_read_only, file_path=None) -> <span class="tp">PermissionDecision</span>:
+        <span class="cm"># 1. 센시티브 경로 fnmatch → 무조건 거부</span>
+        <span class="cm"># 2. denied_commands / denied_tools → 거부</span>
+        <span class="cm"># 3. path_rules (glob) → allow/deny</span>
+        <span class="cm"># 4. PermissionMode → allowed / requires_confirmation</span></code></pre>
+<p>settings.json 예시:</p>
+<pre data-title="json"><code>{
+  <span class="st">"permission"</span>: {
+    <span class="st">"mode"</span>: <span class="st">"default"</span>,
+    <span class="st">"path_rules"</span>: [{ <span class="st">"pattern"</span>: <span class="st">"/etc/*"</span>, <span class="st">"allow"</span>: <span class="kw">false</span> }],
+    <span class="st">"denied_commands"</span>: [<span class="st">"rm -rf /"</span>, <span class="st">"DROP TABLE *"</span>]
+  }
+}</code></pre>
+
+<h3 id="hooks">hooks/ — 라이프사이클 훅</h3>
+<h4>4가지 Hook 타입 (schemas.py)</h4>
+<div class="tw"><table>
+<thead><tr><th>타입</th><th>동작</th><th>timeout</th><th>block_on_failure</th></tr></thead>
+<tbody>
+<tr><td><code>CommandHookDefinition</code></td><td>셸 커맨드 실행</td><td>30s</td><td>false</td></tr>
+<tr><td><code>PromptHookDefinition</code></td><td>모델에게 조건 검증</td><td>30s</td><td>true</td></tr>
+<tr><td><code>HttpHookDefinition</code></td><td>HTTP POST 페이로드 전송</td><td>30s</td><td>false</td></tr>
+<tr><td><code>AgentHookDefinition</code></td><td>모델 기반 심화 검증</td><td>60s</td><td>true</td></tr>
+</tbody>
+</table></div>
+<pre data-title="python"><code><span class="kw">class</span> <span class="dc">HookExecutor</span>:
+    <span class="kw">async def</span> <span class="fn">execute</span>(self, event: <span class="tp">HookEvent</span>, payload) -> <span class="tp">AggregatedHookResult</span>:
+        <span class="cm"># event = PreToolUse | PostToolUse</span>
+        <span class="kw">for</span> hook <span class="kw">in</span> self._registry.<span class="fn">get</span>(event):
+            <span class="kw">if</span> <span class="fn">_matches_hook</span>(hook, payload):
+                <span class="cm"># hook.type에 따라 command/http/prompt/agent 실행</span>
+                <span class="cm"># block_on_failure=True면 도구 실행 차단 가능</span></code></pre>
+<div class="warn"><strong>보안:</strong> command hook의 <code>$ARGUMENTS</code> 치환 시 shell-escape 적용. <code>$(…)</code> / backtick 통한 injection 방어.</div>
+
+<h3 id="skills-code">skills/ — 스킬 로더</h3>
+<pre data-title="python"><code><span class="kw">def</span> <span class="fn">load_skill_registry</span>(cwd, *, extra_skill_dirs, extra_plugin_roots):
+    registry = <span class="fn">SkillRegistry</span>()
+    <span class="cm"># 1. 번들 스킬 (내장)</span>
+    <span class="kw">for</span> skill <span class="kw">in</span> <span class="fn">get_bundled_skills</span>(): registry.<span class="fn">register</span>(skill)
+    <span class="cm"># 2. 사용자 스킬 (~/.openharness/skills/*.md)</span>
+    <span class="kw">for</span> skill <span class="kw">in</span> <span class="fn">load_user_skills</span>(): registry.<span class="fn">register</span>(skill)
+    <span class="cm"># 3. 추가 디렉토리 (extra_skill_dirs)</span>
+    <span class="cm"># 4. 활성 플러그인에 포함된 스킬</span>
+    <span class="kw">return</span> registry</code></pre>
+<div class="note"><strong>anthropics/skills 호환</strong> — <code>~/.openharness/skills/</code>에 .md 복사만으로 사용 가능.</div>
+
+<h3 id="memory-code">memory/ — 영속 메모리</h3>
+<h4>경로 설계 (paths.py)</h4>
+<pre data-title="python"><code><span class="kw">def</span> <span class="fn">get_project_memory_dir</span>(cwd) -> Path:
+    path = Path(cwd).<span class="fn">resolve</span>()
+    digest = <span class="fn">sha1</span>(str(path).<span class="fn">encode</span>()).<span class="fn">hexdigest</span>()[:<span class="nb">12</span>]
+    <span class="cm"># ~/.openharness/data/memory/{project_name}-{hash12}/</span>
+    <span class="kw">return</span> get_data_dir() / <span class="st">"memory"</span> / <span class="st">f"{path.name}-{digest}"</span></code></pre>
+
+<h4>관리 API (manager.py)</h4>
+<ul>
+  <li><code>add_memory_entry(cwd, title, content)</code> → slug 파일 + MEMORY.md 인덱스</li>
+  <li><code>remove_memory_entry(cwd, name)</code> → 파일 삭제 + 인덱스 제거</li>
+  <li><code>list_memory_files(cwd)</code> → 전체 목록</li>
+</ul>
+
+<h4>검색 (search.py)</h4>
+<pre data-title="python"><code><span class="kw">def</span> <span class="fn">find_relevant_memories</span>(query, cwd, *, max_results=<span class="nb">5</span>):
+    <span class="cm"># frontmatter (title, description) 매치: 가중치 2x</span>
+    <span class="cm"># body content 매치: 가중치 1x</span>
+    <span class="cm"># Han character 토크나이저 → 한중일 다국어 지원</span></code></pre>
+
+<h3 id="prompts-code">prompts/ — 프롬프트 조립</h3>
+<h4>시스템 프롬프트 핵심 원칙 (system_prompt.py)</h4>
+<ul>
+  <li>전용 도구 우선 (read_file &gt; cat, edit_file &gt; sed, Bash는 셸 명령 전용)</li>
+  <li>안전 코딩 (OWASP, injection 방지)</li>
+  <li>최소 변경 ("요청된 것만 수정, 추가 개선 금지")</li>
+  <li>가역성 판단 ("돌이킬 수 없는 작업은 사용자 확인")</li>
+  <li>간결 출력 ("한 문장이면 세 문장 쓰지 말 것")</li>
+</ul>
+
+<h4>CLAUDE.md 탐색 (claudemd.py)</h4>
+<pre data-title="python"><code><span class="kw">def</span> <span class="fn">discover_claude_md_files</span>(cwd) -> list[Path]:
+    <span class="cm"># cwd → 상위 디렉토리까지 순회하며:</span>
+    <span class="cm">#   {dir}/CLAUDE.md</span>
+    <span class="cm">#   {dir}/.claude/CLAUDE.md</span>
+    <span class="cm">#   {dir}/.claude/rules/*.md (정렬됨)</span>
+    <span class="cm"># max_chars_per_file = 12,000 (초과 시 truncate)</span></code></pre>
+
+<h3 id="compact">services/compact/ — Auto-Compact</h3>
+<p>Claude Code의 compaction을 충실히 재구현. 컨텍스트 윈도우 자동 관리:</p>
+<div class="tw"><table>
+<thead><tr><th>단계</th><th>방법</th><th>비용</th></tr></thead>
+<tbody>
+<tr><td><strong>Microcompact</strong></td><td>오래된 tool result → <code>[Old tool result content cleared]</code></td><td>무료</td></tr>
+<tr><td><strong>Full Compact</strong></td><td>LLM으로 오래된 메시지를 구조화 요약</td><td>API 1회</td></tr>
+</tbody>
+</table></div>
+<pre data-title="python"><code>COMPACTABLE_TOOLS = frozenset({<span class="st">"read_file"</span>, <span class="st">"bash"</span>, <span class="st">"grep"</span>, <span class="st">"glob"</span>,
+    <span class="st">"web_search"</span>, <span class="st">"web_fetch"</span>, <span class="st">"edit_file"</span>, <span class="st">"write_file"</span>})
+AUTOCOMPACT_BUFFER_TOKENS    = <span class="nb">13_000</span>
+MAX_OUTPUT_TOKENS_FOR_SUMMARY = <span class="nb">20_000</span>
+MAX_CONSECUTIVE_FAILURES      = <span class="nb">3</span>
+DEFAULT_CONTEXT_WINDOW        = <span class="nb">200_000</span>
+TOKEN_ESTIMATION_PADDING      = <span class="nb">4</span> / <span class="nb">3</span>  <span class="cm"># 보수적 추정 (len(text)//4 기반)</span></code></pre>
+
+<h3 id="coordinator">coordinator/ — Multi-Agent</h3>
+<pre data-title="python"><code><span class="kw">class</span> <span class="dc">TeamRegistry</span>:
+    <span class="kw">def</span> <span class="fn">create_team</span>(self, name, description) -> <span class="tp">TeamRecord</span>: ...
+    <span class="kw">def</span> <span class="fn">add_agent</span>(self, team_name, task_id): ...
+    <span class="kw">def</span> <span class="fn">send_message</span>(self, team_name, message): ...
+    <span class="kw">def</span> <span class="fn">list_teams</span>(self) -> list[<span class="tp">TeamRecord</span>]: ...
+
+<span class="dc">@dataclass</span>
+<span class="kw">class</span> <span class="dc">TeamRecord</span>:
+    name: str; description: str
+    agents: list[str]    <span class="cm"># task_id 목록</span>
+    messages: list[str]  <span class="cm"># 팀 내 메시지 히스토리</span></code></pre>
+
+<h3 id="config-code">config/ — 설정 스키마 (settings.py)</h3>
+<p>우선순위: <strong>CLI → 환경변수 → settings.json → 기본값</strong></p>
+<pre data-title="python"><code><span class="kw">class</span> <span class="dc">PermissionSettings</span>(<span class="tp">BaseModel</span>):
+    mode: <span class="tp">PermissionMode</span> = DEFAULT
+    allowed_tools / denied_tools: list[str]
+    path_rules: list[<span class="tp">PathRuleConfig</span>]
+    denied_commands: list[str]
+
+<span class="kw">class</span> <span class="dc">MemorySettings</span>(<span class="tp">BaseModel</span>):
+    enabled: bool = <span class="kw">True</span>; max_files: int = <span class="nb">5</span>
+
+<span class="kw">class</span> <span class="dc">SandboxSettings</span>(<span class="tp">BaseModel</span>):
+    enabled: bool = <span class="kw">False</span>
+    network: <span class="tp">SandboxNetworkSettings</span>     <span class="cm"># allowed/denied domains</span>
+    filesystem: <span class="tp">SandboxFilesystemSettings</span> <span class="cm"># allow/deny read/write</span>
+
+<span class="kw">class</span> <span class="dc">ProviderProfile</span>(<span class="tp">BaseModel</span>):
+    label: str; provider: str; ...       <span class="cm"># 프로파일별 크레덴셜 분리</span></code></pre>
+</section>
+
+<!-- 05 -->
+<section id="cli">
+<h2 class="sec-head"><span class="sec-num">05</span> CLI 레퍼런스</h2>
+<h3 id="cli-flags">옵션 &amp; 플래그</h3>
+<pre data-title="bash"><code>oh [OPTIONS] COMMAND [ARGS]</code></pre>
+<div class="tw"><table>
+<thead><tr><th>카테고리</th><th>플래그</th><th>설명</th></tr></thead>
+<tbody>
+<tr><td rowspan="3"><strong>Session</strong></td><td><code>-c, --continue</code></td><td>이전 대화 이어서</td></tr>
+<tr><td><code>-r, --resume</code></td><td>세션 이력에서 복원</td></tr>
+<tr><td><code>-n, --name</code></td><td>세션 이름 지정</td></tr>
+<tr><td rowspan="3"><strong>Model</strong></td><td><code>-m, --model</code></td><td>모델 지정</td></tr>
+<tr><td><code>--effort</code></td><td>토큰 예산 수준</td></tr>
+<tr><td><code>--max-turns</code></td><td>최대 에이전트 턴</td></tr>
+<tr><td rowspan="2"><strong>Output</strong></td><td><code>-p, --print</code></td><td>비대화형 stdout</td></tr>
+<tr><td><code>--output-format</code></td><td>text | json | stream-json</td></tr>
+<tr><td rowspan="2"><strong>Permission</strong></td><td><code>--permission-mode</code></td><td>default / full_auto / plan</td></tr>
+<tr><td><code>--dangerously-skip-permissions</code></td><td>권한 검사 건너뛰기</td></tr>
+<tr><td rowspan="2"><strong>Context</strong></td><td><code>-s, --system-prompt</code></td><td>시스템 프롬프트 교체</td></tr>
+<tr><td><code>--append-system-prompt</code></td><td>기본에 추가</td></tr>
+<tr><td rowspan="3"><strong>Advanced</strong></td><td><code>-d, --debug</code></td><td>디버그 로깅</td></tr>
+<tr><td><code>--mcp-config</code></td><td>MCP 설정 경로</td></tr>
+<tr><td><code>--bare</code></td><td>최소 설정 실행</td></tr>
+</tbody>
+</table></div>
+
+<h3 id="cli-sub">서브커맨드</h3>
+<div class="tw"><table>
+<thead><tr><th>커맨드</th><th>설명</th></tr></thead>
+<tbody>
+<tr><td><code>oh setup</code></td><td>대화형 워크플로우 설정</td></tr>
+<tr><td><code>oh provider list|use|add</code></td><td>프로파일 관리</td></tr>
+<tr><td><code>oh auth copilot-login|status|copilot-logout</code></td><td>Copilot OAuth</td></tr>
+<tr><td><code>oh mcp ...</code></td><td>MCP 서버 관리</td></tr>
+<tr><td><code>oh plugin list|install|enable</code></td><td>플러그인 관리</td></tr>
+</tbody>
+</table></div>
+
+<h3 id="cli-noninteractive">비대화형 모드</h3>
+<pre data-title="bash"><code>oh -p <span class="st">"Explain this codebase"</span>                           <span class="cm"># text → stdout</span>
+oh -p <span class="st">"List functions"</span> --output-format json              <span class="cm"># JSON 출력</span>
+oh -p <span class="st">"Fix the bug"</span> --output-format stream-json          <span class="cm"># 실시간 스트림</span></code></pre>
+</section>
+
+<!-- 06 -->
+<section id="ohmo">
+<h2 class="sec-head"><span class="sec-num">06</span> ohmo — Personal Agent</h2>
+<p>OpenHarness 위에 구축된 개인 에이전트 앱. 자체 워크스페이스, 게이트웨이, 인격(soul) 시스템.</p>
+<pre data-title="bash"><code>ohmo init       <span class="cm"># 워크스페이스 초기화 (~/.ohmo/)</span>
+ohmo config     <span class="cm"># 게이트웨이 채널 + 프로바이더 설정</span>
+ohmo            <span class="cm"># 에이전트 실행</span>
+ohmo gateway run|status|restart</code></pre>
+
+<div class="tree">
+<span class="d">~/.ohmo/</span><br>
+├─ soul.md<span class="c">── 에이전트 인격 & 행동 원칙</span><br>
+├─ identity.md<span class="c">── 정체성</span><br>
+├─ user.md<span class="c">── 사용자 프로필 & 선호</span><br>
+├─ BOOTSTRAP.md<span class="c">── 첫 실행 리추얼</span><br>
+├─ <span class="d">memory/</span><span class="c">── 영속 메모리</span><br>
+├─ state.json<span class="c">── 최근 상태</span><br>
+└─ gateway.json<span class="c">── 프로바이더 + 채널 설정</span>
+</div>
+
+<h4>SOUL.md 핵심 (workspace.py)</h4>
+<ul>
+  <li>"제네릭 어시스턴트처럼 들리지 마라" — 유용하고 신뢰할 수 있는 존재</li>
+  <li>판단력 — 선호를 가지고 트레이드오프 설명</li>
+  <li>물어보기 전에 스스로 해결 — 파일 읽기, 컨텍스트 점검</li>
+  <li>"접근은 친밀함" — 메시지·파일·노트를 존중</li>
+</ul>
+
+<h3 id="ohmo-code">코드 구조 (ohmo/)</h3>
+<div class="tw"><table>
+<thead><tr><th>파일</th><th>LOC</th><th>역할</th></tr></thead>
+<tbody>
+<tr><td>cli.py</td><td>614</td><td>CLI 진입점 (init, config, gateway, main)</td></tr>
+<tr><td>workspace.py</td><td>307</td><td>워크스페이스 초기화 + 템플릿</td></tr>
+<tr><td>runtime.py</td><td>192</td><td>OpenHarness runtime 연결 (run_ohmo_backend)</td></tr>
+<tr><td>session_storage.py</td><td>192</td><td>세션 저장/복원</td></tr>
+<tr><td>prompts.py</td><td>74</td><td>시스템 프롬프트 빌더</td></tr>
+<tr><td>memory.py</td><td>69</td><td>개인 메모리 헬퍼</td></tr>
+</tbody>
+</table></div>
+<p>지원 채널: Telegram, Slack, Discord, Feishu</p>
+</section>
+
+<!-- 07 -->
+<section id="extending">
+<h2 class="sec-head"><span class="sec-num">07</span> 확장하기</h2>
+
+<h3 id="ext-tool">커스텀 도구</h3>
+<pre data-title="python"><code><span class="kw">from</span> pydantic <span class="kw">import</span> BaseModel, Field
+<span class="kw">from</span> openharness.tools.base <span class="kw">import</span> BaseTool, ToolExecutionContext, ToolResult
+
+<span class="kw">class</span> <span class="dc">MyToolInput</span>(<span class="tp">BaseModel</span>):
+    query: str = <span class="fn">Field</span>(description=<span class="st">"Search query"</span>)
+
+<span class="kw">class</span> <span class="dc">MyTool</span>(<span class="tp">BaseTool</span>):
+    name = <span class="st">"my_tool"</span>
+    description = <span class="st">"Does something useful"</span>
+    input_model = MyToolInput
+
+    <span class="kw">async def</span> <span class="fn">execute</span>(self, args: MyToolInput, ctx: ToolExecutionContext) -> ToolResult:
+        <span class="kw">return</span> <span class="fn">ToolResult</span>(output=<span class="st">f"Result for: {args.query}"</span>)</code></pre>
+
+<h3 id="ext-skill">커스텀 스킬</h3>
+<p><code>~/.openharness/skills/my-skill.md</code>:</p>
+<pre data-title="markdown"><code>---
+name: my-skill
+description: Expert guidance for my domain
+---
+# My Skill
+## When to use
+Use when the user asks about [domain].
+## Workflow
+1. Step one
+2. Step two</code></pre>
+
+<h3 id="ext-plugin">커스텀 플러그인</h3>
+<p><code>.openharness/plugins/my-plugin/.claude-plugin/plugin.json</code>:</p>
+<pre data-title="json"><code>{ <span class="st">"name"</span>: <span class="st">"my-plugin"</span>, <span class="st">"version"</span>: <span class="st">"1.0.0"</span>, <span class="st">"description"</span>: <span class="st">"My plugin"</span> }</code></pre>
+<p>하위에 <code>commands/*.md</code>, <code>hooks/hooks.json</code>, <code>agents/*.md</code> 추가.</p>
+
+<h4>공식 테스트 통과 플러그인 (12개)</h4>
+<div class="tw"><table>
+<thead><tr><th>플러그인</th><th>타입</th><th>기능</th></tr></thead>
+<tbody>
+<tr><td>commit-commands</td><td>Commands</td><td>Git commit/push/PR</td></tr>
+<tr><td>security-guidance</td><td>Hooks</td><td>파일 편집 시 보안 경고</td></tr>
+<tr><td>hookify</td><td>Cmd+Agents</td><td>커스텀 훅 생성</td></tr>
+<tr><td>feature-dev</td><td>Commands</td><td>기능 개발 워크플로우</td></tr>
+<tr><td>code-review</td><td>Agents</td><td>멀티에이전트 PR 리뷰</td></tr>
+<tr><td>pr-review-toolkit</td><td>Agents</td><td>특화 PR 리뷰</td></tr>
+</tbody>
+</table></div>
+</section>
+
+<!-- 08 -->
+<section id="tests">
+<h2 class="sec-head"><span class="sec-num">08</span> 테스트 &amp; 기여</h2>
+<div class="tw"><table>
+<thead><tr><th>스위트</th><th>수</th><th>상태</th></tr></thead>
+<tbody>
+<tr><td>Unit + Integration</td><td>114</td><td style="color:var(--accent)">✅ All passing</td></tr>
+<tr><td>CLI Flags E2E</td><td>6</td><td style="color:var(--accent)">✅ Real model calls</td></tr>
+<tr><td>Harness Features E2E</td><td>9</td><td style="color:var(--accent)">✅ Retry, skills, parallel, permissions</td></tr>
+<tr><td>React TUI E2E</td><td>3</td><td style="color:var(--accent)">✅ Welcome, conversation, status</td></tr>
+<tr><td>TUI Interactions E2E</td><td>4</td><td style="color:var(--accent)">✅ Commands, permissions, shortcuts</td></tr>
+<tr><td>Real Skills + Plugins</td><td>12</td><td style="color:var(--accent)">✅ anthropics/skills + claude-code/plugins</td></tr>
+</tbody>
+</table></div>
+<pre data-title="bash"><code>uv run pytest -q                           <span class="cm"># unit/integration</span>
+python scripts/test_harness_features.py     <span class="cm"># Harness E2E</span>
+python scripts/test_real_skills_plugins.py  <span class="cm"># Plugins E2E</span></code></pre>
+
+<h3 id="contrib">기여 가이드</h3>
+<div class="tw"><table>
+<thead><tr><th>영역</th><th>예시</th></tr></thead>
+<tbody>
+<tr><td>Tools</td><td>도메인 특화 도구</td></tr>
+<tr><td>Skills</td><td>.md 도메인 지식</td></tr>
+<tr><td>Plugins</td><td>commands+hooks+agents</td></tr>
+<tr><td>Providers</td><td>LLM 백엔드 확장</td></tr>
+<tr><td>Multi-Agent</td><td>조율 프로토콜</td></tr>
+<tr><td>Testing</td><td>E2E, 벤치마크</td></tr>
+<tr><td>Docs</td><td>가이드, 번역</td></tr>
+</tbody>
+</table></div>
+<pre data-title="bash"><code>git clone https://github.com/HKUDS/OpenHarness.git
+cd OpenHarness && uv sync --extra dev && uv run pytest -q</code></pre>
+</section>
+
+<footer>
+  <strong style="color:var(--accent)">oh</strong> — OpenHarness v0.1.2 · HKUDS · MIT License<br>
+  <span style="color:var(--text-dim)">"The model is the agent. The code is the harness."</span>
+</footer>
+
+</main>
+</body>
+</html>
